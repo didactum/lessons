@@ -1,0 +1,11 @@
+{
+  "name": "didactum-lessons",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Open lessons for Didactum (LessonPackage v1)",
+  "license": "CC-BY-4.0",
+  "scripts": {
+    "validate": "python3 scripts/validate_lesson.py",
+    "preview": "node scripts/preview.mjs"
+  }
+}

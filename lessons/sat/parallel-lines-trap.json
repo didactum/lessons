@@ -1,0 +1,138 @@
+{
+  "schema_version": "1.0",
+  "id": "sat.parallel-lines-trap",
+  "slug": "parallel-lines-trap",
+  "metadata": {
+    "subject": "sat-math",
+    "topic": "Angles with parallel lines",
+    "concept_slugs": [
+      "parallel-lines-angles",
+      "sat-geometry-traps"
+    ],
+    "grade_band": "9-12",
+    "language": "en",
+    "authors": [
+      "Didactum Core Team"
+    ],
+    "license": "CC-BY-4.0",
+    "never_verbatim_verified": true
+  },
+  "problem": {
+    "statement": "Lines l and m are parallel and cut by a transversal. Two same-side interior angles measure (2x + 10) degrees and (3x + 20) degrees. What is x?",
+    "givens": [
+      "l is parallel to m",
+      "same-side interior angles: 2x + 10 and 3x + 20"
+    ],
+    "unknown": "x",
+    "assessment": {
+      "answer": "x = 30",
+      "answer_value": "30",
+      "rationale": "Same-side interior angles add to 180: 5x + 30 = 180."
+    }
+  },
+  "chapters": [
+    {
+      "id": "spot-the-trap",
+      "role": "seek",
+      "title": "The trap hiding in parallel-line questions",
+      "duration_hint_s": 40,
+      "beats": [
+        {
+          "id": "trap-1",
+          "narration": {
+            "text": "Here's the trap. Parallel lines make students set two angles equal, every time, on autopilot. But only some pairs are equal. The pair stuck between the lines on the same side add up to one eighty instead.",
+            "cues": [
+              {
+                "id": "trap",
+                "word_index": 2
+              },
+              {
+                "id": "between",
+                "word_index": 24
+              }
+            ],
+            "pause_ms": 400
+          },
+          "visuals": [
+            {
+              "type": "geometry_figure",
+              "id": "parallels",
+              "props": {
+                "shape": "parallel-lines-transversal",
+                "highlight": "same-side-interior"
+              },
+              "layout": {
+                "region": "center",
+                "emphasis": "high"
+              },
+              "reveal_cue": "between"
+            },
+            {
+              "type": "callout",
+              "id": "rule",
+              "props": {
+                "text": "Equal or supplementary? Decide before you write anything."
+              },
+              "layout": {
+                "region": "bottom"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "two-second-test",
+      "role": "how",
+      "title": "The two-second test: equal or add to 180?",
+      "duration_hint_s": 50,
+      "beats": [
+        {
+          "id": "test-1",
+          "narration": {
+            "text": "Use the squint test. If the two angles look like the same size, they're equal. If one is clearly fat and the other skinny, they're partners that sum to one eighty. Then write one equation, solve it, and plug back in to be sure the angles still make sense.",
+            "cues": [
+              {
+                "id": "squint",
+                "word_index": 3
+              },
+              {
+                "id": "write",
+                "word_index": 38
+              }
+            ],
+            "pause_ms": 400
+          },
+          "visuals": [
+            {
+              "type": "equation_steps",
+              "id": "flow",
+              "props": {
+                "steps": [
+                  "look: equal or supplementary?",
+                  "write one equation",
+                  "solve and sanity-check"
+                ]
+              },
+              "layout": {
+                "region": "left"
+              },
+              "reveal_cue": "squint"
+            }
+          ],
+          "checkin": {
+            "prompt": "Two angles are both clearly obtuse and sit in matching spots on the two parallel lines. Equal or supplementary?",
+            "choices": [
+              "equal",
+              "supplementary"
+            ],
+            "hints": [
+              "Two obtuse angles can't add to 180."
+            ],
+            "correct_index": 0
+          }
+        }
+      ]
+    }
+  ]
+}
