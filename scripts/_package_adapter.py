@@ -29,10 +29,8 @@ import re
 from typing import Any, Dict, Iterator, List, Optional, Tuple
 
 try:  # the app
-    from app.services.tutor import board_teach as _teach
     from app.services.tutor import board_validate as _bv
 except ImportError:  # the vendored copy in didactum/lessons (scripts/didactum/)
-    import _board_teach as _teach  # type: ignore
     import _board_validate as _bv  # type: ignore
 
 SCHEMA_VERSION = "2.0"
