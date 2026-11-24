@@ -2,7 +2,7 @@
   "name": "didactum-lessons",
   "version": "1.0.0",
   "private": true,
-  "description": "Open lessons for Didactum (LessonPackage v1)",
+  "description": "Open lessons for Didactum (lesson package v2; read llms.txt)",
   "license": "CC-BY-4.0",
   "scripts": {
     "validate": "python3 scripts/validate_lesson.py",

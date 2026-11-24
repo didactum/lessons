@@ -1,0 +1,540 @@
+{
+  "schema_version": "2.0",
+  "id": "didactum.where-two-prices-meet",
+  "slug": "where-two-prices-meet",
+  "metadata": {
+    "subject": "algebra",
+    "topic": "Where two prices meet",
+    "concept_slugs": [
+      "solving-systems-by-graphing"
+    ],
+    "grade_band": "6-8",
+    "language": "en",
+    "authors": [
+      "Didactum"
+    ],
+    "license": "CC-BY-4.0",
+    "never_verbatim_verified": true,
+    "grade": 8
+  },
+  "problem": {
+    "statement": "Ride-share A charges a $30 booking fee plus $4 per ride. Ride-share B charges $10 per ride and no fee. After how many rides do the two cost the same?",
+    "givens": [],
+    "unknown": "the answer",
+    "assessment": {
+      "answer": "5"
+    }
+  },
+  "chapters": [
+    {
+      "id": "c1",
+      "role": "why",
+      "title": "Why this matters",
+      "beats": [
+        {
+          "id": "b1",
+          "narration": {
+            "text": "Two deals can look different and still, at one moment, cost exactly the same.",
+            "intent": "pose"
+          },
+          "role": "why",
+          "board": {
+            "title": "Two deals, one question",
+            "draw": [
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    12,
+                    20
+                  ],
+                  [
+                    40,
+                    20
+                  ],
+                  [
+                    40,
+                    46
+                  ],
+                  [
+                    12,
+                    46
+                  ]
+                ],
+                "dur": 700,
+                "id": "boxp"
+              },
+              {
+                "op": "label",
+                "at": [
+                  26,
+                  34
+                ],
+                "text": "Shop P",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    60,
+                    20
+                  ],
+                  [
+                    88,
+                    20
+                  ],
+                  [
+                    88,
+                    46
+                  ],
+                  [
+                    60,
+                    46
+                  ]
+                ],
+                "dur": 700,
+                "id": "boxq"
+              },
+              {
+                "op": "label",
+                "at": [
+                  74,
+                  34
+                ],
+                "text": "Shop Q",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  50,
+                  34
+                ],
+                "text": "?",
+                "size": 7,
+                "align": "center"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "role": "seek",
+      "title": "What the problem asks",
+      "beats": [
+        {
+          "id": "b2",
+          "narration": {
+            "text": "Shop P charges nine dollars up front plus one dollar an hour, and shop Q charges four dollars an hour.",
+            "intent": "pose"
+          },
+          "role": "recite",
+          "board": {
+            "title": "What the example asks",
+            "lines": [
+              "P: $9 + $1 per hour",
+              "Q: $4 per hour",
+              "When does P cost the same as Q?"
+            ],
+            "draw": [
+              {
+                "op": "label",
+                "at": [
+                  50,
+                  56
+                ],
+                "text": "same cost?",
+                "size": 5,
+                "align": "center"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b3",
+          "narration": {
+            "text": "Each deal is a straight line, because the cost grows by the same amount every hour.",
+            "intent": "teach"
+          },
+          "role": "orient",
+          "board": {
+            "title": "Write each cost as a line",
+            "lines": [
+              "$P = 9 + h$",
+              "$Q = 4h$"
+            ],
+            "draw": [
+              {
+                "op": "line",
+                "from": [
+                  14,
+                  58
+                ],
+                "to": [
+                  90,
+                  58
+                ],
+                "dur": 500
+              },
+              {
+                "op": "line",
+                "from": [
+                  14,
+                  58
+                ],
+                "to": [
+                  14,
+                  8
+                ],
+                "dur": 500
+              },
+              {
+                "op": "label",
+                "at": [
+                  88,
+                  63
+                ],
+                "text": "hours",
+                "size": 4,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  10,
+                  10
+                ],
+                "text": "cost",
+                "size": 4,
+                "align": "center"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "role": "how",
+      "title": "How to solve it",
+      "beats": [
+        {
+          "id": "b4",
+          "narration": {
+            "text": "Shop P starts higher because of its fee. Shop Q starts at zero but climbs faster.",
+            "intent": "teach"
+          },
+          "role": "decompose",
+          "board": {
+            "title": "Draw both lines",
+            "draw": [
+              {
+                "op": "line",
+                "from": [
+                  14,
+                  58
+                ],
+                "to": [
+                  90,
+                  58
+                ],
+                "dur": 500
+              },
+              {
+                "op": "line",
+                "from": [
+                  14,
+                  58
+                ],
+                "to": [
+                  14,
+                  8
+                ],
+                "dur": 500
+              },
+              {
+                "op": "label",
+                "at": [
+                  88,
+                  63
+                ],
+                "text": "hours",
+                "size": 4,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  10,
+                  10
+                ],
+                "text": "cost",
+                "size": 4,
+                "align": "center"
+              },
+              {
+                "op": "line",
+                "from": [
+                  14,
+                  36.4
+                ],
+                "to": [
+                  84,
+                  24.4
+                ],
+                "dur": 900,
+                "say": "Shop P starts higher because of its fee."
+              },
+              {
+                "op": "label",
+                "at": [
+                  88,
+                  22
+                ],
+                "text": "P",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "line",
+                "from": [
+                  14,
+                  58
+                ],
+                "to": [
+                  84,
+                  10
+                ],
+                "dur": 900,
+                "say": "Shop Q starts at zero but climbs faster."
+              },
+              {
+                "op": "label",
+                "at": [
+                  88,
+                  8
+                ],
+                "text": "Q",
+                "size": 5,
+                "align": "center"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b5",
+          "narration": {
+            "text": "The lines cross at three hours, where both shops charge twelve dollars.",
+            "intent": "reveal"
+          },
+          "role": "solve",
+          "board": {
+            "title": "Where they cross",
+            "lines": [
+              "$9 + h = 4h$",
+              "$9 = 3h$",
+              "$h = 3$"
+            ],
+            "draw": [
+              {
+                "op": "line",
+                "from": [
+                  14,
+                  58
+                ],
+                "to": [
+                  90,
+                  58
+                ],
+                "dur": 500
+              },
+              {
+                "op": "line",
+                "from": [
+                  14,
+                  58
+                ],
+                "to": [
+                  14,
+                  8
+                ],
+                "dur": 500
+              },
+              {
+                "op": "label",
+                "at": [
+                  88,
+                  63
+                ],
+                "text": "hours",
+                "size": 4,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  10,
+                  10
+                ],
+                "text": "cost",
+                "size": 4,
+                "align": "center"
+              },
+              {
+                "op": "line",
+                "from": [
+                  14,
+                  36.4
+                ],
+                "to": [
+                  84,
+                  24.4
+                ],
+                "dur": 900
+              },
+              {
+                "op": "line",
+                "from": [
+                  14,
+                  58
+                ],
+                "to": [
+                  84,
+                  10
+                ],
+                "dur": 900
+              },
+              {
+                "op": "circle",
+                "c": [
+                  56,
+                  29.2
+                ],
+                "r": 2,
+                "dur": 400,
+                "id": "meet"
+              },
+              {
+                "op": "line",
+                "from": [
+                  56,
+                  29.2
+                ],
+                "to": [
+                  56,
+                  58
+                ],
+                "dur": 400
+              },
+              {
+                "op": "label",
+                "at": [
+                  56,
+                  62
+                ],
+                "text": "3 h",
+                "size": 4.5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  64,
+                  26
+                ],
+                "text": "$12",
+                "size": 4.5,
+                "align": "center"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b6",
+          "narration": {
+            "text": "Put three hours into both deals and they match, so the crossing is right.",
+            "intent": "check"
+          },
+          "role": "check",
+          "board": {
+            "title": "Check it both ways",
+            "lines": [
+              "P: 9 + 3 = 12",
+              "Q: 4 × 3 = 12"
+            ],
+            "draw": [
+              {
+                "op": "arrow",
+                "from": [
+                  30,
+                  40
+                ],
+                "to": [
+                  56,
+                  31
+                ],
+                "dur": 400
+              },
+              {
+                "op": "label",
+                "at": [
+                  28,
+                  44
+                ],
+                "text": "before",
+                "size": 4.5,
+                "align": "center"
+              }
+            ]
+          },
+          "checkin": {
+            "prompt": "Before three hours, which shop is cheaper?",
+            "choices": [
+              "Shop P",
+              "Shop Q"
+            ],
+            "branches": {
+              "Shop Q": "Yes. Left of the crossing, the Q line sits lower.",
+              "Shop P": "Look left of the crossing: the Q line sits lower there, so Q is cheaper."
+            }
+          }
+        },
+        {
+          "id": "b7",
+          "narration": {
+            "text": "Now write both ride-share costs the same way and find the ride where they meet.",
+            "intent": "celebrate"
+          },
+          "role": "synthesize",
+          "board": {
+            "title": "Your turn",
+            "lines": [
+              "Write both costs",
+              "Set them equal",
+              "Solve, then check"
+            ],
+            "draw": [
+              {
+                "op": "arrow",
+                "from": [
+                  20,
+                  50
+                ],
+                "to": [
+                  80,
+                  50
+                ],
+                "dur": 500
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

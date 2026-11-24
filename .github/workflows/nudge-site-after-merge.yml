@@ -1,0 +1,13 @@
+name: nudge-site-after-merge
+# After a merge to main, ask didactum.org to pull this repository now (it also pulls on its own every few minutes).
+# The request carries no data and no secret: the site reads this repository's main branch itself.
+on:
+  push:
+    branches: [main]
+    paths: ["lessons/**"]
+permissions: {}
+jobs:
+  nudge:
+    runs-on: ubuntu-latest
+    steps:
+      - run: curl -fsS -X POST --max-time 20 https://didactum.org/api/community/sync || echo "nudge not accepted; the site's schedule will pick the merge up"

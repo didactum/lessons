@@ -1,0 +1,1096 @@
+{
+  "schema_version": "2.0",
+  "id": "didactum.the-longest-side",
+  "slug": "the-longest-side",
+  "metadata": {
+    "subject": "geometry",
+    "topic": "The longest side of a right triangle",
+    "concept_slugs": [
+      "pythagorean-theorem"
+    ],
+    "grade_band": "6-8",
+    "language": "en",
+    "authors": [
+      "Didactum"
+    ],
+    "license": "CC-BY-4.0",
+    "never_verbatim_verified": true,
+    "grade": 8
+  },
+  "problem": {
+    "statement": "A ladder leans against a wall. Its foot is 6 m from the wall and its top reaches 8 m up the wall. How long is the ladder?",
+    "givens": [],
+    "unknown": "the answer",
+    "assessment": {
+      "answer": "10"
+    }
+  },
+  "chapters": [
+    {
+      "id": "c1",
+      "role": "history",
+      "title": "Where it came from",
+      "beats": [
+        {
+          "id": "b1",
+          "narration": {
+            "text": "Long ago, builders tied knots at three, four and five spaces on a rope to make a perfect square corner.",
+            "intent": "pose"
+          },
+          "role": "history",
+          "board": {
+            "title": "The builders' knotted rope",
+            "lines": [
+              "3, 4, 5 knots make a square corner"
+            ],
+            "draw": [
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    58
+                  ],
+                  [
+                    20,
+                    34
+                  ],
+                  [
+                    52,
+                    58
+                  ]
+                ],
+                "dur": 700,
+                "id": "rope"
+              },
+              {
+                "op": "label",
+                "at": [
+                  14,
+                  46
+                ],
+                "text": "3",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  36,
+                  63
+                ],
+                "text": "4",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  40,
+                  44
+                ],
+                "text": "5",
+                "size": 5,
+                "align": "center"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "role": "seek",
+      "title": "What the problem asks",
+      "beats": [
+        {
+          "id": "b2",
+          "narration": {
+            "text": "Here the two short sides are nine and twelve, and we want the long side.",
+            "intent": "pose"
+          },
+          "role": "recite",
+          "board": {
+            "title": "What the example asks",
+            "lines": [
+              "legs 9 and 12",
+              "long side = ?"
+            ],
+            "draw": [
+              {
+                "op": "polyline",
+                "pts": [
+                  [
+                    20,
+                    55
+                  ],
+                  [
+                    25,
+                    55
+                  ],
+                  [
+                    25,
+                    60
+                  ]
+                ],
+                "dur": 200
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ]
+                ],
+                "dur": 800,
+                "id": "tri"
+              },
+              {
+                "op": "label",
+                "at": [
+                  14,
+                  42
+                ],
+                "text": "9",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  44,
+                  65
+                ],
+                "text": "12",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  48,
+                  39
+                ],
+                "text": "?",
+                "size": 5,
+                "align": "center"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "role": "how",
+      "title": "How to solve it",
+      "beats": [
+        {
+          "id": "b3",
+          "narration": {
+            "text": "Build a square on each short side: their areas are eighty-one and one hundred forty-four.",
+            "intent": "teach"
+          },
+          "role": "decompose",
+          "board": {
+            "title": "A square on each short side",
+            "lines": [
+              "$9^2 = 81$",
+              "$12^2 = 144$"
+            ],
+            "draw": [
+              {
+                "op": "polyline",
+                "pts": [
+                  [
+                    20,
+                    55
+                  ],
+                  [
+                    25,
+                    55
+                  ],
+                  [
+                    25,
+                    60
+                  ]
+                ],
+                "dur": 200
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ]
+                ],
+                "dur": 800,
+                "id": "tri"
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    8,
+                    24
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    8,
+                    60
+                  ]
+                ],
+                "dur": 700,
+                "id": "sqa"
+              },
+              {
+                "op": "label",
+                "at": [
+                  14,
+                  42
+                ],
+                "text": "81",
+                "size": 4.5,
+                "align": "center"
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    68,
+                    60
+                  ],
+                  [
+                    68,
+                    66
+                  ],
+                  [
+                    20,
+                    66
+                  ]
+                ],
+                "dur": 700,
+                "id": "sqb"
+              },
+              {
+                "op": "label",
+                "at": [
+                  44,
+                  64
+                ],
+                "text": "144",
+                "size": 4,
+                "align": "center"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b4",
+          "narration": {
+            "text": "The square on the long side holds both areas together: two hundred twenty-five.",
+            "intent": "teach"
+          },
+          "role": "solve",
+          "board": {
+            "title": "Add the areas",
+            "lines": [
+              "$81 + 144 = 225$",
+              "$c^2 = 225$"
+            ],
+            "draw": [
+              {
+                "op": "polyline",
+                "pts": [
+                  [
+                    20,
+                    55
+                  ],
+                  [
+                    25,
+                    55
+                  ],
+                  [
+                    25,
+                    60
+                  ]
+                ],
+                "dur": 200
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ]
+                ],
+                "dur": 800,
+                "id": "tri"
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ],
+                  [
+                    86,
+                    36
+                  ],
+                  [
+                    38,
+                    0.5
+                  ]
+                ],
+                "dur": 700,
+                "id": "sqc"
+              },
+              {
+                "op": "label",
+                "at": [
+                  52,
+                  30
+                ],
+                "text": "225",
+                "size": 5,
+                "align": "center"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b5",
+          "narration": {
+            "text": "The side whose square is two hundred twenty-five is fifteen long.",
+            "intent": "reveal"
+          },
+          "role": "solve",
+          "board": {
+            "title": "Undo the square",
+            "lines": [
+              "$c = \\sqrt{225} = 15$"
+            ],
+            "draw": [
+              {
+                "op": "polyline",
+                "pts": [
+                  [
+                    20,
+                    55
+                  ],
+                  [
+                    25,
+                    55
+                  ],
+                  [
+                    25,
+                    60
+                  ]
+                ],
+                "dur": 200
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ]
+                ],
+                "dur": 800,
+                "id": "tri"
+              },
+              {
+                "op": "label",
+                "at": [
+                  48,
+                  39
+                ],
+                "text": "15",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "highlight",
+                "target": "tri",
+                "dur": 400
+              }
+            ]
+          }
+        },
+        {
+          "id": "b6",
+          "narration": {
+            "text": "The hypotenuse sits opposite the right angle, so it is always the longest side.",
+            "intent": "check"
+          },
+          "role": "check",
+          "board": {
+            "title": "Which side is longest?",
+            "lines": [
+              "hypotenuse: opposite the corner"
+            ],
+            "draw": [
+              {
+                "op": "polyline",
+                "pts": [
+                  [
+                    20,
+                    55
+                  ],
+                  [
+                    25,
+                    55
+                  ],
+                  [
+                    25,
+                    60
+                  ]
+                ],
+                "dur": 200
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ]
+                ],
+                "dur": 800,
+                "id": "tri"
+              },
+              {
+                "op": "arrow",
+                "from": [
+                  70,
+                  30
+                ],
+                "to": [
+                  46,
+                  41
+                ],
+                "dur": 400
+              }
+            ]
+          },
+          "checkin": {
+            "prompt": "Which side is always the longest?",
+            "choices": [
+              "The hypotenuse",
+              "A leg"
+            ],
+            "branches": {
+              "The hypotenuse": "Yes. It faces the right angle.",
+              "A leg": "A leg touches the right angle; the side across from it is longer."
+            }
+          }
+        },
+        {
+          "id": "b7",
+          "narration": {
+            "text": "Now treat the ladder as the long side and make the same three moves.",
+            "intent": "celebrate"
+          },
+          "role": "synthesize",
+          "board": {
+            "title": "Your ladder",
+            "lines": [
+              "Square both legs",
+              "Add them",
+              "Take the square root"
+            ],
+            "draw": [
+              {
+                "op": "line",
+                "from": [
+                  30,
+                  60
+                ],
+                "to": [
+                  30,
+                  14
+                ],
+                "dur": 400
+              },
+              {
+                "op": "line",
+                "from": [
+                  30,
+                  14
+                ],
+                "to": [
+                  70,
+                  60
+                ],
+                "dur": 500
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "perspectives": {
+    "sports": {
+      "reframed_problem": "A winger stands 6 m from the corner flag along the goal line and the striker is 8 m up the touchline. How long is the pass between them?",
+      "beats": {
+        "b1": {
+          "say": "Long ago, builders tied knots at three, four and five spaces on a rope to make a perfect square corner.",
+          "board": {
+            "title": "The builders' knotted rope",
+            "lines": [
+              "3, 4, 5 knots make a square corner"
+            ],
+            "draw": [
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    58
+                  ],
+                  [
+                    20,
+                    34
+                  ],
+                  [
+                    52,
+                    58
+                  ]
+                ],
+                "dur": 700,
+                "id": "rope"
+              },
+              {
+                "op": "label",
+                "at": [
+                  14,
+                  46
+                ],
+                "text": "3",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  36,
+                  63
+                ],
+                "text": "4",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  40,
+                  44
+                ],
+                "text": "5",
+                "size": 5,
+                "align": "center"
+              }
+            ]
+          }
+        },
+        "b2": {
+          "say": "A winger runs nine metres along the goal line and twelve up the pitch; how far is the straight pass back?",
+          "board": {
+            "title": "The corner kick",
+            "lines": [
+              "legs 9 and 12",
+              "long side = ?"
+            ],
+            "draw": [
+              {
+                "op": "polyline",
+                "pts": [
+                  [
+                    20,
+                    55
+                  ],
+                  [
+                    25,
+                    55
+                  ],
+                  [
+                    25,
+                    60
+                  ]
+                ],
+                "dur": 200
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ]
+                ],
+                "dur": 800,
+                "id": "tri"
+              },
+              {
+                "op": "label",
+                "at": [
+                  14,
+                  42
+                ],
+                "text": "9",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  44,
+                  65
+                ],
+                "text": "12",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  48,
+                  39
+                ],
+                "text": "?",
+                "size": 5,
+                "align": "center"
+              }
+            ]
+          }
+        },
+        "b3": {
+          "say": "Build a square on each short side: their areas are eighty-one and one hundred forty-four.",
+          "board": {
+            "title": "A square on each short side",
+            "lines": [
+              "$9^2 = 81$",
+              "$12^2 = 144$"
+            ],
+            "draw": [
+              {
+                "op": "polyline",
+                "pts": [
+                  [
+                    20,
+                    55
+                  ],
+                  [
+                    25,
+                    55
+                  ],
+                  [
+                    25,
+                    60
+                  ]
+                ],
+                "dur": 200
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ]
+                ],
+                "dur": 800,
+                "id": "tri"
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    8,
+                    24
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    8,
+                    60
+                  ]
+                ],
+                "dur": 700,
+                "id": "sqa"
+              },
+              {
+                "op": "label",
+                "at": [
+                  14,
+                  42
+                ],
+                "text": "81",
+                "size": 4.5,
+                "align": "center"
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    68,
+                    60
+                  ],
+                  [
+                    68,
+                    66
+                  ],
+                  [
+                    20,
+                    66
+                  ]
+                ],
+                "dur": 700,
+                "id": "sqb"
+              },
+              {
+                "op": "label",
+                "at": [
+                  44,
+                  64
+                ],
+                "text": "144",
+                "size": 4,
+                "align": "center"
+              }
+            ]
+          }
+        },
+        "b4": {
+          "say": "The square on the long side holds both areas together: two hundred twenty-five.",
+          "board": {
+            "title": "Add the areas",
+            "lines": [
+              "$81 + 144 = 225$",
+              "$c^2 = 225$"
+            ],
+            "draw": [
+              {
+                "op": "polyline",
+                "pts": [
+                  [
+                    20,
+                    55
+                  ],
+                  [
+                    25,
+                    55
+                  ],
+                  [
+                    25,
+                    60
+                  ]
+                ],
+                "dur": 200
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ]
+                ],
+                "dur": 800,
+                "id": "tri"
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ],
+                  [
+                    86,
+                    36
+                  ],
+                  [
+                    38,
+                    0.5
+                  ]
+                ],
+                "dur": 700,
+                "id": "sqc"
+              },
+              {
+                "op": "label",
+                "at": [
+                  52,
+                  30
+                ],
+                "text": "225",
+                "size": 5,
+                "align": "center"
+              }
+            ]
+          }
+        },
+        "b5": {
+          "say": "The side whose square is two hundred twenty-five is fifteen long.",
+          "board": {
+            "title": "Undo the square",
+            "lines": [
+              "$c = \\sqrt{225} = 15$"
+            ],
+            "draw": [
+              {
+                "op": "polyline",
+                "pts": [
+                  [
+                    20,
+                    55
+                  ],
+                  [
+                    25,
+                    55
+                  ],
+                  [
+                    25,
+                    60
+                  ]
+                ],
+                "dur": 200
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ]
+                ],
+                "dur": 800,
+                "id": "tri"
+              },
+              {
+                "op": "label",
+                "at": [
+                  48,
+                  39
+                ],
+                "text": "15",
+                "size": 5,
+                "align": "center"
+              },
+              {
+                "op": "highlight",
+                "target": "tri",
+                "dur": 400
+              }
+            ]
+          }
+        },
+        "b6": {
+          "say": "The hypotenuse sits opposite the right angle, so it is always the longest side.",
+          "board": {
+            "title": "Which side is longest?",
+            "lines": [
+              "hypotenuse: opposite the corner"
+            ],
+            "draw": [
+              {
+                "op": "polyline",
+                "pts": [
+                  [
+                    20,
+                    55
+                  ],
+                  [
+                    25,
+                    55
+                  ],
+                  [
+                    25,
+                    60
+                  ]
+                ],
+                "dur": 200
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    20,
+                    60
+                  ],
+                  [
+                    20,
+                    24
+                  ],
+                  [
+                    68,
+                    60
+                  ]
+                ],
+                "dur": 800,
+                "id": "tri"
+              },
+              {
+                "op": "arrow",
+                "from": [
+                  70,
+                  30
+                ],
+                "to": [
+                  46,
+                  41
+                ],
+                "dur": 400
+              }
+            ]
+          }
+        },
+        "b7": {
+          "say": "Now treat the ladder as the long side and make the same three moves.",
+          "board": {
+            "title": "Your ladder, again",
+            "lines": [
+              "Square both legs",
+              "Add them",
+              "Take the square root"
+            ],
+            "draw": [
+              {
+                "op": "line",
+                "from": [
+                  30,
+                  60
+                ],
+                "to": [
+                  30,
+                  14
+                ],
+                "dur": 400
+              },
+              {
+                "op": "line",
+                "from": [
+                  30,
+                  14
+                ],
+                "to": [
+                  70,
+                  60
+                ],
+                "dur": 500
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "schema_version": "2.0",
+  "id": "community.area-of-a-triangle",
+  "slug": "area-of-a-triangle",
+  "metadata": {
+    "subject": "geometry",
+    "topic": "The area of a triangle",
+    "concept_slugs": ["area-of-a-triangle", "base-and-height", "area-of-a-rectangle"],
+    "grade_band": "6-8",
+    "grade": 6,
+    "language": "en",
+    "authors": ["Claude (Anthropic agent)"],
+    "license": "CC-BY-4.0",
+    "never_verbatim_verified": true
+  },
+  "problem": {
+    "statement": "A triangular sail has a base of 12 metres along the boom and a height of 7 metres up the mast. How many square metres of cloth is the sail?",
+    "givens": ["base is 12 m", "height is 7 m"],
+    "unknown": "the area of the sail in square metres",
+    "assessment": {"answer": "42"}
+  },
+  "chapters": [
+    {
+      "id": "c1", "role": "why", "title": "Half of a box",
+      "beats": [
+        {
+          "id": "b1",
+          "narration": {"text": "Draw a rectangle, then cut it from corner to corner. You get two triangles that match exactly, so each one is half the rectangle.", "intent": "pose"},
+          "board": {
+            "title": "Cut a rectangle in two",
+            "lines": ["two matching triangles", "each is half"],
+            "draw": [
+              {"op": "polygon", "id": "box", "pts": [[22, 56], [78, 56], [78, 24], [22, 24]], "dur": 700, "say": "Draw a rectangle, then cut it from corner to corner."},
+              {"op": "line", "id": "cut", "from": [22, 56], "to": [78, 24], "dur": 500},
+              {"op": "label", "at": [36, 48], "text": "half", "size": 4.5, "align": "center"},
+              {"op": "label", "at": [64, 34], "text": "half", "size": 4.5, "align": "center", "say": "You get two triangles that match exactly, so each one is half the rectangle."},
+              {"op": "highlight", "target": "cut"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c2", "role": "history", "title": "Fields by the Nile",
+      "beats": [
+        {
+          "id": "b2",
+          "narration": {"text": "Over three thousand years ago, Egyptian scribes measured triangle shaped fields this way. An old scroll called the Rhind papyrus takes half of one side and multiplies by the height.", "intent": "explain"},
+          "board": {
+            "title": "An old Egyptian method",
+            "lines": ["Rhind papyrus, about 1550 BCE", "half the base times the height"],
+            "draw": [
+              {"op": "polygon", "pts": [[20, 58], [80, 58], [50, 28]], "dur": 700},
+              {"op": "curve", "pts": [[10, 22], [30, 16], [50, 22], [70, 16], [90, 22]], "dur": 600},
+              {"op": "label", "at": [50, 12], "text": "the river", "size": 4, "align": "center"},
+              {"op": "label", "at": [50, 50], "text": "field", "size": 4.5, "align": "center"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3", "role": "uses", "title": "Roofs, ramps and flags",
+      "beats": [
+        {
+          "id": "b3",
+          "narration": {"text": "Painters use it to buy enough paint for the pointed end of a house. Sailmakers use it to cut cloth. Any flat shape with straight sides can be split into triangles.", "intent": "explain"},
+          "board": {
+            "title": "Triangles everywhere",
+            "lines": ["paint a gable", "cut a sail"],
+            "draw": [
+              {"op": "polygon", "pts": [[12, 58], [42, 58], [42, 38], [27, 24], [12, 38]], "dur": 700},
+              {"op": "line", "from": [12, 38], "to": [42, 38], "dur": 300},
+              {"op": "label", "at": [27, 34], "text": "gable", "size": 4, "align": "center"},
+              {"op": "line", "from": [70, 60], "to": [70, 18], "dur": 400},
+              {"op": "polygon", "pts": [[70, 54], [88, 54], [70, 20]], "dur": 600},
+              {"op": "label", "at": [79, 60], "text": "sail", "size": 4, "align": "center"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c4", "role": "seek", "title": "What we need to know",
+      "beats": [
+        {
+          "id": "b4",
+          "narration": {"text": "Area means how many unit squares cover the shape. For a triangle we need two numbers. The base is any side. The height is the straight up distance from that side to the opposite corner.", "intent": "explain"},
+          "board": {
+            "title": "Base and height",
+            "lines": ["base: a side", "height: square to the base"],
+            "draw": [
+              {"op": "polygon", "id": "tri", "pts": [[16, 56], [84, 56], [38, 20]], "dur": 700},
+              {"op": "line", "id": "h", "from": [38, 20], "to": [38, 56], "dur": 400},
+              {"op": "polyline", "pts": [[38, 52], [42, 52], [42, 56]], "dur": 200},
+              {"op": "label", "at": [50, 62], "text": "base", "size": 4.5, "align": "center"},
+              {"op": "label", "at": [32, 40], "text": "height", "size": 4.5, "align": "center"},
+              {"op": "highlight", "target": "h"}
+            ]
+          },
+          "checkin": {
+            "prompt": "Is the height the length of a slanted side?",
+            "choices": ["No, it goes straight up from the base", "Yes, it is the slanted side"],
+            "branches": {
+              "No, it goes straight up from the base": "Right. The height meets the base in a square corner.",
+              "Yes, it is the slanted side": "Not quite. A slanted side is longer. The height drops straight down and meets the base in a square corner."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "c5", "role": "how", "title": "A triangle in a box",
+      "beats": [
+        {
+          "id": "b5",
+          "narration": {"text": "Take a triangle with a base of ten and a height of six. Put it inside a box that is ten wide and six tall.", "intent": "explain"},
+          "board": {
+            "title": "Base 10, height 6",
+            "lines": ["box: 10 wide, 6 tall"],
+            "draw": [
+              {"op": "polygon", "id": "box2", "pts": [[20, 56], [80, 56], [80, 20], [20, 20]], "dur": 600},
+              {"op": "polygon", "id": "t2", "pts": [[20, 56], [80, 56], [44, 20]], "dur": 600},
+              {"op": "line", "from": [44, 20], "to": [44, 56], "dur": 300},
+              {"op": "label", "at": [50, 62], "text": "10", "size": 4.5, "align": "center"},
+              {"op": "label", "at": [14, 38], "text": "6", "size": 4.5, "align": "center"}
+            ]
+          }
+        },
+        {
+          "id": "b6",
+          "narration": {"text": "The box holds ten times six, which is sixty squares. The height line splits the box into two smaller boxes, and the triangle fills half of each one. So the triangle is half of sixty, which is thirty.", "intent": "explain"},
+          "board": {
+            "title": "Half the box",
+            "lines": ["box: $10 \\times 6 = 60$", "triangle: $\\frac{1}{2} \\times 60 = 30$"],
+            "draw": [
+              {"op": "polygon", "pts": [[20, 56], [80, 56], [80, 20], [20, 20]], "dur": 400},
+              {"op": "polygon", "id": "t3", "pts": [[20, 56], [80, 56], [44, 20]], "dur": 400},
+              {"op": "line", "from": [44, 20], "to": [44, 56], "dur": 300},
+              {"op": "label", "at": [27, 28], "text": "half", "size": 4, "align": "center"},
+              {"op": "label", "at": [70, 28], "text": "half", "size": 4, "align": "center"},
+              {"op": "highlight", "target": "t3"}
+            ]
+          },
+          "checkin": {
+            "prompt": "Why do we halve the box?",
+            "choices": ["The triangle fills half of it", "Boxes always get halved", "To make the number smaller"],
+            "branches": {
+              "The triangle fills half of it": "Exactly. Each small box is cut in half by a side of the triangle.",
+              "Boxes always get halved": "Not always. We halve here because the triangle covers exactly half of the box.",
+              "To make the number smaller": "It does get smaller, but the reason is that the triangle covers exactly half of the box."
+            }
+          }
+        },
+        {
+          "id": "b7",
+          "narration": {"text": "So the rule is: multiply the base by the height, then take half. Remember to say the answer in square units, like square metres.", "intent": "summarize"},
+          "board": {
+            "title": "The rule",
+            "lines": ["$A = \\frac{1}{2} \\times b \\times h$", "answer in square units"],
+            "draw": [
+              {"op": "polygon", "pts": [[30, 54], [70, 54], [56, 26]], "dur": 600},
+              {"op": "line", "from": [56, 26], "to": [56, 54], "dur": 300},
+              {"op": "label", "at": [50, 60], "text": "b", "size": 4.5, "align": "center"},
+              {"op": "label", "at": [60, 42], "text": "h", "size": 4.5, "align": "center"}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c6", "role": "check", "title": "Your sail",
+      "beats": [
+        {
+          "id": "b8",
+          "narration": {"text": "Now your sail. The boom along the bottom is the base, and the mast gives the height. Multiply them, take half, and give your answer in square metres.", "intent": "celebrate"},
+          "board": {
+            "title": "Your turn",
+            "lines": ["base times height", "then take half"],
+            "draw": [
+              {"op": "line", "from": [40, 60], "to": [40, 14], "dur": 400},
+              {"op": "polygon", "pts": [[40, 52], [76, 52], [40, 18]], "dur": 600},
+              {"op": "brace", "from": [40, 56], "to": [76, 56], "dur": 300},
+              {"op": "label", "at": [58, 62], "text": "base", "size": 4, "align": "center"},
+              {"op": "label", "at": [32, 36], "text": "height", "size": 4, "align": "center"}
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
