@@ -1,7 +1,9 @@
 name: validate-lesson-pr
+# Runs on every pull request with read-only permissions and no secrets: the same validator the site runs before a
+# lesson can play, then a rendered preview of the changed lessons attached to the run as an artifact.
 on:
   pull_request:
-    paths: ["lessons/**", "schema/**", "scripts/**"]
+    paths: ["lessons/**", "schema/**", "scripts/**", "llms.txt"]
 permissions:
   contents: read
 jobs:
@@ -9,7 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - run: pip install jsonschema
-      - run: npm run validate
+      - name: Validate every lesson
+        run: python3 scripts/validate_lesson.py
+      - name: Changed lessons
+        id: changed
+        run: |
+          git diff -z --name-only --diff-filter=AM "origin/${GITHUB_BASE_REF}...HEAD" -- 'lessons/*.json' > changed.lst
+          if [ -s changed.lst ]; then echo "any=yes" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-node@v4
+        if: steps.changed.outputs.any == 'yes'
+        with: { node-version: "20" }
+      - name: Render a preview of the changed lessons
+        if: steps.changed.outputs.any == 'yes'
+        run: xargs -0 node scripts/preview.mjs --render preview.html < changed.lst
+      - uses: actions/upload-artifact@v4
+        if: steps.changed.outputs.any == 'yes'
+        with:
+          name: lesson-preview
+          path: preview.html

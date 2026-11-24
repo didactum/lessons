@@ -1,11 +1,12 @@
 # Contributing a lesson
 
-1. Fork and clone. Branch: `lesson/<subject>-<slug>`.
-2. Add `lessons/<subject>/<slug>.json` (one lesson per PR). Start from the closest flagship.
-3. `npm run validate` must print `OK`. It checks the JSON Schema, natural chapter titles (no raw role labels),
-   visual-first STEM, cue ranges, and the Never-Verbatim guard.
-4. `npm run preview`, read it aloud, check the visuals make sense without the audio.
-5. Open a PR; CI re-runs validation on changed lessons. Reviewers look for warm voice, honest history, correct math.
+Everything you need is in [`llms.txt`](llms.txt): the format, a complete example, the commands, the checklist, and what
+review rejects. In short: add one file `lessons/<subject>/<slug>.json`, run `python3 scripts/validate_lesson.py` until it
+prints `OK`, and open a pull request. CI runs the same validator the site runs and attaches a preview of your board.
 
-Rules of the road: CC-BY-4.0 unless you say otherwise, no copied textbook text, no answers in the teaching,
-no audio or renderer code. Be kind in review.
+After a maintainer merges your pull request, the site pulls this repository and your lesson plays on
+https://didactum.org within minutes, credited to the `authors` you list, under the license you chose (CC-BY-4.0 by
+default).
+
+`schema/` and `scripts/_*.py` are copied from the Didactum app (`scripts/vendor_lesson_validator.py` there); changes to
+them go to the app, not here.

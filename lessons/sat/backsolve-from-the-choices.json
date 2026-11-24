@@ -1,0 +1,445 @@
+{
+  "schema_version": "2.0",
+  "id": "didactum.backsolve-from-the-choices",
+  "slug": "backsolve-from-the-choices",
+  "metadata": {
+    "subject": "sat",
+    "topic": "Backsolve: test the answer choices",
+    "concept_slugs": [
+      "linear-equations-one-variable"
+    ],
+    "grade_band": "9-12",
+    "language": "en",
+    "authors": [
+      "Didactum"
+    ],
+    "license": "CC-BY-4.0",
+    "never_verbatim_verified": true,
+    "grade": 10
+  },
+  "problem": {
+    "statement": "If 4(x - 3) = 2x + 6, what is the value of x?",
+    "givens": [],
+    "unknown": "the answer",
+    "assessment": {
+      "answer": "9"
+    }
+  },
+  "chapters": [
+    {
+      "id": "c1",
+      "role": "why",
+      "title": "Why this matters",
+      "beats": [
+        {
+          "id": "b1",
+          "narration": {
+            "text": "On a timed test, the answer is already on the page: it is one of the four choices.",
+            "intent": "pose"
+          },
+          "role": "why",
+          "board": {
+            "title": "The answer is already on the page",
+            "lines": [
+              "One of four choices is right"
+            ],
+            "draw": [
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    10,
+                    24
+                  ],
+                  [
+                    26,
+                    24
+                  ],
+                  [
+                    26,
+                    40
+                  ],
+                  [
+                    10,
+                    40
+                  ]
+                ],
+                "dur": 700
+              },
+              {
+                "op": "label",
+                "at": [
+                  18,
+                  32
+                ],
+                "text": "A",
+                "size": 6,
+                "align": "center"
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    32,
+                    24
+                  ],
+                  [
+                    48,
+                    24
+                  ],
+                  [
+                    48,
+                    40
+                  ],
+                  [
+                    32,
+                    40
+                  ]
+                ],
+                "dur": 700
+              },
+              {
+                "op": "label",
+                "at": [
+                  40,
+                  32
+                ],
+                "text": "B",
+                "size": 6,
+                "align": "center"
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    54,
+                    24
+                  ],
+                  [
+                    70,
+                    24
+                  ],
+                  [
+                    70,
+                    40
+                  ],
+                  [
+                    54,
+                    40
+                  ]
+                ],
+                "dur": 700
+              },
+              {
+                "op": "label",
+                "at": [
+                  62,
+                  32
+                ],
+                "text": "C",
+                "size": 6,
+                "align": "center"
+              },
+              {
+                "op": "polygon",
+                "pts": [
+                  [
+                    76,
+                    24
+                  ],
+                  [
+                    92,
+                    24
+                  ],
+                  [
+                    92,
+                    40
+                  ],
+                  [
+                    76,
+                    40
+                  ]
+                ],
+                "dur": 700
+              },
+              {
+                "op": "label",
+                "at": [
+                  84,
+                  32
+                ],
+                "text": "D",
+                "size": 6,
+                "align": "center"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "role": "seek",
+      "title": "What the problem asks",
+      "beats": [
+        {
+          "id": "b2",
+          "narration": {
+            "text": "We need the value of x that makes both sides equal.",
+            "intent": "pose"
+          },
+          "role": "recite",
+          "board": {
+            "title": "What the example asks",
+            "lines": [
+              "$3(x + 2) = x + 14$",
+              "A 2 B 4 C 6 D 8"
+            ],
+            "draw": [
+              {
+                "op": "numberline",
+                "at": [
+                  12,
+                  40
+                ],
+                "len": 76,
+                "lo": 0,
+                "hi": 10,
+                "divisions": 10,
+                "marks": [
+                  {
+                    "v": 2,
+                    "text": "A"
+                  },
+                  {
+                    "v": 4,
+                    "text": "B"
+                  },
+                  {
+                    "v": 6,
+                    "text": "C"
+                  },
+                  {
+                    "v": 8,
+                    "text": "D"
+                  }
+                ],
+                "dur": 800,
+                "id": "nl"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c3",
+      "role": "how",
+      "title": "How to solve it",
+      "beats": [
+        {
+          "id": "b3",
+          "narration": {
+            "text": "Try a middle choice first, so one test tells you whether to go up or down.",
+            "intent": "teach"
+          },
+          "role": "strategise",
+          "board": {
+            "title": "Start in the middle",
+            "lines": [
+              "Try C: x = 6"
+            ],
+            "draw": [
+              {
+                "op": "arrow",
+                "from": [
+                  57,
+                  24
+                ],
+                "to": [
+                  57.6,
+                  36
+                ],
+                "dur": 400
+              },
+              {
+                "op": "numberline",
+                "at": [
+                  12,
+                  40
+                ],
+                "len": 76,
+                "lo": 0,
+                "hi": 10,
+                "divisions": 10,
+                "marks": [
+                  {
+                    "v": 2,
+                    "text": "A"
+                  },
+                  {
+                    "v": 4,
+                    "text": "B"
+                  },
+                  {
+                    "v": 6,
+                    "text": "C"
+                  },
+                  {
+                    "v": 8,
+                    "text": "D"
+                  }
+                ],
+                "dur": 800,
+                "id": "nl"
+              }
+            ]
+          }
+        },
+        {
+          "id": "b4",
+          "narration": {
+            "text": "With six, the left side is twenty-four and the right is twenty, so six is too big.",
+            "intent": "warn"
+          },
+          "role": "solve",
+          "board": {
+            "title": "Test C",
+            "lines": [
+              "Left: 3(6 + 2) = 24",
+              "Right: 6 + 14 = 20",
+              "24 > 20, too big"
+            ],
+            "draw": [
+              {
+                "op": "line",
+                "from": [
+                  20,
+                  56
+                ],
+                "to": [
+                  80,
+                  50
+                ],
+                "dur": 500,
+                "id": "tilt"
+              },
+              {
+                "op": "label",
+                "at": [
+                  20,
+                  62
+                ],
+                "text": "left",
+                "size": 4.5,
+                "align": "center"
+              },
+              {
+                "op": "label",
+                "at": [
+                  80,
+                  56
+                ],
+                "text": "right",
+                "size": 4.5,
+                "align": "center"
+              }
+            ]
+          },
+          "checkin": {
+            "prompt": "Six was too big. Which choice do we test next?",
+            "choices": [
+              "B: 4",
+              "D: 8"
+            ],
+            "branches": {
+              "B: 4": "Yes. Too big means go down.",
+              "D: 8": "Eight is even bigger. Too big means go down, to four."
+            }
+          }
+        },
+        {
+          "id": "b5",
+          "narration": {
+            "text": "With four, both sides are eighteen, so four makes this example true.",
+            "intent": "reveal"
+          },
+          "role": "solve",
+          "board": {
+            "title": "Test B",
+            "lines": [
+              "Left: 3(4 + 2) = 18",
+              "Right: 4 + 14 = 18",
+              "Both sides match"
+            ],
+            "draw": [
+              {
+                "op": "line",
+                "from": [
+                  20,
+                  53
+                ],
+                "to": [
+                  80,
+                  53
+                ],
+                "dur": 500,
+                "id": "level"
+              },
+              {
+                "op": "circle",
+                "c": [
+                  42.4,
+                  40
+                ],
+                "r": 2.5,
+                "dur": 300
+              }
+            ]
+          }
+        },
+        {
+          "id": "b6",
+          "narration": {
+            "text": "Use the same moves on your problem: test a middle choice, then let the result point you up or down.",
+            "intent": "celebrate"
+          },
+          "role": "synthesize",
+          "board": {
+            "title": "Your turn",
+            "lines": [
+              "Plug a middle choice in",
+              "Too big? Go down. Too small? Go up."
+            ],
+            "draw": [
+              {
+                "op": "arrow",
+                "from": [
+                  50,
+                  30
+                ],
+                "to": [
+                  30,
+                  50
+                ],
+                "dur": 300
+              },
+              {
+                "op": "arrow",
+                "from": [
+                  50,
+                  30
+                ],
+                "to": [
+                  70,
+                  50
+                ],
+                "dur": 300
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

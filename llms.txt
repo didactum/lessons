@@ -1,0 +1,162 @@
+# didactum/lessons — contribute a lesson
+
+> Open lessons for Didactum (https://didactum.org), a free tutor that teaches on a chalkboard and speaks aloud. One lesson is one JSON file. When a pull request is merged, the lesson plays on the site within minutes, credited to its authors.
+
+These are the exact steps. Read them all before writing.
+
+## 1. Where the file goes
+
+`lessons/<subject>/<slug>.json` — lower-case letters, digits and hyphens only. The file name must equal the package `slug`. One lesson per pull request. Do not edit `schema/`, `scripts/` or other people's lessons.
+
+Pick a topic the repo does not have yet: list `lessons/` first.
+
+## 2. The format
+
+Schema: `schema/lesson-package.v2.json` (published at https://didactum.org/schemas/lesson-package.v2.json). Set `"schema_version": "2.0"`.
+
+- `id`: unique, e.g. `community.<slug>`. `slug`: same as the file name.
+- `metadata`: `subject` (math, algebra, geometry, sat, physics, chemistry, reading, ...), `topic` (a human title), `concept_slugs` (1-5 kebab-case skills, most specific first), `grade_band` (k-2, 3-5, 6-8, 9-12, college, adult), optional `grade` (0-16), `language` (en), `authors` (your name or your agent's name), `license` (CC-BY-4.0, CC-BY-SA-4.0 or CC0-1.0), `never_verbatim_verified`: true.
+- `problem`: the student's problem — `statement`, `givens`, `unknown`, `assessment.answer`. The lesson never solves this problem; it teaches the method on a different worked example.
+- `chapters`: each `{id, title, role?, beats}`. `role` is optional, but roles that are present must follow this order: `why` (why it matters), `history` (where it came from), `uses` (where it is used), `seek` (what the problem asks), `how` (how to solve), `check`. Titles are for humans ("Sharing one pizza"), never "Chapter 2" or a role name.
+- A beat is one moment on the board:
+  - `narration.text`: what the teacher says. Plain spoken words, at most 280 characters. Never `$ \ ^ = { }`: say "x squared", "equals".
+  - `board.title`: at most 64 characters.
+  - `board.lines`: at most 3 written lines, each at most 44 characters, at most 24 words across the beat. Equations and key terms, not sentences. `$...$` is TeX (KaTeX).
+  - `board.draw`: drawing ops on a 100 x 70 board (x right 0-100, y down 0-70; keep content inside x 6-94, y 6-62). A maths or science lesson must draw something.
+  - optional `checkin`: `prompt`, 2-5 `choices`, optional `branches` (what the teacher says after each choice; key = the choice text).
+  - optional `prose`: reading text shown under the board.
+
+Draw ops (all coordinates are [x, y]; `dur` is milliseconds):
+- `{"op":"line","from":[x,y],"to":[x,y]}`, `{"op":"arrow","from":..,"to":..}`, `{"op":"brace","from":..,"to":..}`
+- `{"op":"polyline"|"polygon"|"curve","pts":[[x,y],...]}`
+- `{"op":"circle","c":[x,y],"r":5}`, `{"op":"arc","c":[x,y],"r":5,"a0":0,"a1":90}`
+- `{"op":"label","at":[x,y],"text":"short","size":4.5,"align":"center"}` (a label is at most 18 characters)
+- `{"op":"math","at":[x,y],"tex":"\\frac{a}{b}"}`
+- `{"op":"numberline","at":[x,y],"len":70,"lo":0,"hi":10,"divisions":10,"marks":[{"v":3,"text":"A"}]}`
+- `{"op":"highlight","target":"<id of an earlier op>"}`, `{"op":"pause","dur":500}`; give an op an `"id"` to target it.
+- An op may carry `"say"`: one sentence spoken as it is drawn. If any op in a beat has `say`, the says together must equal `narration.text`.
+
+## 3. A complete example
+
+This file is valid. Copy its shape, not its topic.
+
+```json
+{
+  "schema_version": "2.0",
+  "id": "community.same-denominator-fractions",
+  "slug": "same-denominator-fractions",
+  "metadata": {
+    "subject": "math",
+    "topic": "Adding fractions with the same bottom number",
+    "concept_slugs": ["adding-fractions-like-denominators"],
+    "grade_band": "3-5",
+    "grade": 4,
+    "language": "en",
+    "authors": ["Your name or your agent's name"],
+    "license": "CC-BY-4.0",
+    "never_verbatim_verified": true
+  },
+  "problem": {
+    "statement": "Ana ate 2/7 of a pizza and Ben ate 3/7 of it. What fraction of the pizza did they eat together?",
+    "givens": ["Ana ate 2/7", "Ben ate 3/7"],
+    "unknown": "the fraction eaten together",
+    "assessment": {"answer": "5/7"}
+  },
+  "chapters": [
+    {
+      "id": "c1", "role": "why", "title": "Sharing one pizza",
+      "beats": [
+        {
+          "id": "b1",
+          "narration": {"text": "When pieces are the same size, you can just count them.", "intent": "pose"},
+          "board": {
+            "title": "Same-size pieces",
+            "draw": [
+              {"op": "circle", "c": [50, 36], "r": 22, "dur": 600},
+              {"op": "line", "from": [50, 14], "to": [50, 58], "dur": 300},
+              {"op": "line", "from": [28, 36], "to": [72, 36], "dur": 300}
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "c2", "role": "how", "title": "Count the slices",
+      "beats": [
+        {
+          "id": "b2",
+          "narration": {"text": "One fifth and two fifths make three fifths. The bottom number stays the same."},
+          "board": {
+            "title": "Add the tops",
+            "lines": ["$\\frac{1}{5} + \\frac{2}{5} = \\frac{3}{5}$", "bottom stays 5"],
+            "draw": [
+              {"op": "polygon", "pts": [[10, 50], [90, 50], [90, 60], [10, 60]], "dur": 500},
+              {"op": "line", "from": [26, 50], "to": [26, 60], "dur": 100},
+              {"op": "line", "from": [42, 50], "to": [42, 60], "dur": 100},
+              {"op": "line", "from": [58, 50], "to": [58, 60], "dur": 100},
+              {"op": "line", "from": [74, 50], "to": [74, 60], "dur": 100},
+              {"op": "label", "at": [34, 46], "text": "3 of 5", "size": 4}
+            ]
+          },
+          "checkin": {
+            "prompt": "What happens to the bottom number?",
+            "choices": ["It stays the same", "We add it too"],
+            "branches": {
+              "It stays the same": "Yes. The slices are still fifths.",
+              "We add it too": "The slices do not change size, so they are still fifths."
+            }
+          }
+        },
+        {
+          "id": "b3",
+          "narration": {"text": "Now add the tops of your two fractions and keep the bottom.", "intent": "celebrate"},
+          "board": {
+            "title": "Your turn",
+            "lines": ["add the tops", "keep the bottom"],
+            "draw": [{"op": "arrow", "from": [30, 40], "to": [70, 40], "dur": 400}]
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+## 4. Validate
+
+```
+python3 scripts/validate_lesson.py lessons/<subject>/<slug>.json
+```
+
+Python 3.9+ and nothing else. Repeat until it prints `OK`. Every error names the place (`chapters[1].beats[0] (id 'b2')`) and what to change. Without a checkout: POST the JSON to https://didactum.org/mcp/validate_lesson.
+
+## 5. Preview
+
+```
+node scripts/preview.mjs
+```
+
+Open http://localhost:4173, pick your lesson, press "Read aloud". The preview draws each beat's board. Fix anything that sounds like a textbook.
+
+## 6. Pull request checklist
+
+- [ ] One new file, `lessons/<subject>/<slug>.json`, file name = slug; nothing else changed.
+- [ ] `python3 scripts/validate_lesson.py` prints OK.
+- [ ] The answer to `problem` appears nowhere in the lesson, and the worked example is a different problem.
+- [ ] The problem and example are your own. Nothing is copied from a published test, textbook or website.
+- [ ] `authors` and `license` are set. By opening the PR you license the lesson under that license.
+- [ ] Title: `lesson: <topic>`.
+
+## 7. What review rejects, and why
+
+- Anything the validator rejects (CI runs it on every PR).
+- The answer stated, shown or hinted to the point of giving it away: a student must still do their own problem (never verbatim).
+- Questions copied from the SAT, ACT, AP or any published test or book: we cannot license them, and they would leak real test items.
+- Wrong maths or science. A maintainer checks every worked step.
+- Text instead of teaching: boards that are paragraphs, speech that reads a textbook aloud, no drawing.
+- HTML, links, file paths or personal information anywhere (students see and hear every string).
+- Changes to files other than your lesson.
+
+## License
+
+Lessons are CC-BY-4.0 unless the file says CC-BY-SA-4.0 or CC0-1.0. The site credits the `authors` you list.
