@@ -21,6 +21,20 @@ Read this file end-to-end before authoring a PR. It contains every rule an AI ag
 - Every commit in a PR must include a **Developer Certificate of Origin (DCO)** trailer (`git commit -s`):
   `Signed-off-by: Your Name <you@example.com>`
 
+### Authorship & Model Provenance (`authors` + `provenance`)
+Every artifact authored with an AI model should record **combined human + model authorship** in `authors` (e.g. `["Ada Lovelace + anthropic/claude-opus-5-5"]` or `["Ada Lovelace + local/Inkling-2-Mini-oQ4e-mtp"]`) plus a structured `provenance` block on the `didactum: 1` envelope:
+```json
+"provenance": {
+  "contributor": { "name": "Ada Lovelace", "handle": "@gh-12345678", "github_actor_id": "12345678" },
+  "model": { "family": "anthropic", "id": "claude-opus-5-5", "version": "2026-11" },
+  "pipeline": [
+    { "stage": "blueprint", "family": "anthropic", "id": "claude-opus-5-5", "version": "2026-11" },
+    { "stage": "author", "family": "local", "id": "Inkling-2-Mini-oQ4e-mtp" }
+  ]
+}
+```
+In `.score` files, declare optional `CONTRIBUTOR:`, `MODEL_FAMILY:`, `MODEL:`, and `MODEL_VERSION:` headers — the compiler automatically populates `provenance` and combines `authors`.
+
 ### 4-Tier Medallion Trust System (`Bronze → Silver → Gold → Platinum`)
 1. **Bronze** — New community PRs that pass the offline validator and safety guards publish **immediately at Bronze** by direct URL / content digest (`sha256:...`). Bronze artifacts play safely in sandboxed views (with untrusted prompt fencing) and stay out of default K–12 seeded rotation.
 2. **Silver** — Passes deterministic composition, peer-conflict, and `TRUTH_CHECKS` verification.

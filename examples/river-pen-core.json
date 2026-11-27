@@ -12,8 +12,20 @@
     "concept:parabola-vertex"
   ],
   "authors": [
-    "Didactum Contributors"
+    "Master Fasa + anthropic/claude-opus-5-5"
   ],
+  "provenance": {
+    "contributor": {
+      "name": "Master Fasa",
+      "handle": "@gh-206459364",
+      "github_actor_id": "206459364"
+    },
+    "model": {
+      "family": "anthropic",
+      "id": "claude-opus-5-5",
+      "version": "2026-11"
+    }
+  },
   "status": "published",
   "medallion": "platinum",
   "payload": {
