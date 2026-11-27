@@ -1,6 +1,6 @@
 {
   "didactum": 1,
-  "id": "@teetra/conic-sections-3d",
+  "id": "@gh-206459364/conic-sections-3d",
   "kind": "asset",
   "kind_schema": "didactum.kind/asset@1",
   "license": "CC-BY-4.0",
@@ -32,7 +32,7 @@
         "id": "double_cone",
         "kind": "mesh_3d",
         "props": {
-          "gltf": "asset:@teetra/conic-sections-3d",
+          "gltf": "asset:@gh-206459364/conic-sections-3d",
           "position": [0, 0, 0]
         }
       },

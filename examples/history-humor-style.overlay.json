@@ -1,10 +1,10 @@
 {
   "didactum": 1,
-  "id": "@teetra/history-humor-river-pen",
+  "id": "@gh-206459364/history-humor-river-pen",
   "kind": "overlay",
   "kind_schema": "didactum.kind/overlay@1",
   "lang": "en",
-  "base": "@teetra/river-pen@sha256:8ade776a2e7d4732ac40d72120b10b99d6b239bf1c2324a2233a6b8226037615",
+  "base": "@gh-206459364/river-pen@sha256:8ade776a2e7d4732ac40d72120b10b99d6b239bf1c2324a2233a6b8226037615",
   "role": "style",
   "provides": [
     "style:history-rich",
