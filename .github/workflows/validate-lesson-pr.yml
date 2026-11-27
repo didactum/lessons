@@ -24,7 +24,7 @@ jobs:
           python3 - <<'PY'
           import os, re, subprocess, sys
           base = os.environ.get("GITHUB_BASE_REF", "main")
-          revs = subprocess.check_output(["git", "rev-list", f"origin/{base}...HEAD"], text=True).split()
+          revs = subprocess.check_output(["git", "rev-list", "--no-merges", f"origin/{base}..HEAD"], text=True).split()
           if not revs:
               print("No commits in PR range; skipping DCO check.")
               sys.exit(0)
