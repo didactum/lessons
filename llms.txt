@@ -130,6 +130,31 @@ See `examples/teacher-split.alias.json`.
 
 ---
 
+## 3.5. Exemplar Chalkboard Craft & Core-vs-Overlay Separation
+
+Schema validity alone does **not** make a great lesson. Every core `didactum: 1` lesson should feel like a beloved teacher thinking aloud at a real chalkboard, while overlays compose structural variability cleanly on top:
+
+### Core Lesson Craft Bar (Always-On in `kind: lesson`)
+1. **Slide 1 Problem Recitation & Setup (Zero Spoilers):** Recite the concrete problem immediately and pin BOTH a visual diagram (scene macro or `#node`) AND the exact question (`?` / `Find ...`) in Chapter 1 (`DID-W001`). Never spoil the final answer on Slide 1.
+2. **Cumulative Chalkboard Buildup:** Each chapter clears the working pane. Build **4–6 progressive chalk steps** on ONE working pane in the main derivation so the learner watches reasoning accumulate line-by-line rather than watching sparse 1-line wipes (`DID-W002`). After solving, pin the final boxed answer back into the pinned top band so Problem + Solution stay visible together.
+3. **Teacher Voice, Never a Textbook:** Use vivid, lesson-specific chapter titles — never generic labels like `Setting the Scene`, `The Trap`, `Solving It`, `Why It Matters`, or `Conclusion` (`DID-W003`). Keep spoken lines breathable, insert real contemplation pauses, and restate pivotal insights in fresh plain words.
+4. **Visible Wrong-Move Failure:** Actually try the tempting misconception on the board, show *why* it breaks, and cross it out.
+5. **Woven History, Humor & Real-World Stakes:** Weave verified historical origins, dry warm teacher wit, and real-world uses organically into the setup, trap, and derivation. Never say `"and that's the whole lesson"` and bolt on a tacked-on summary appendix (`DID-W004`).
+6. **Accurate Spoken Math & Place-Value Sanity:** Keep spoken lines free of raw symbols (`$`, `=`, `^`, `{`, `}`, `\`) and place-value speech slips like `"thirty tens"` or `"two hundred hundreds"` (`DID-W005`). Keep `transfer_key` strictly `host-only` (Never-Verbatim).
+
+### Core vs. Composable Overlays
+- **Core (`kind: lesson`)** owns the locked math (`params`, `truth_checks`), the complete chalkboard derivation, and a compelling default voice.
+- **Overlays (`kind: overlay`)** carry **perspective reframing** (`astronomy`, `fantasy`, `sports`, `history`, …) and **open Teaching-Style variability** (`history-rich`, `dry-humor`, `socratic-probe`, `deadpan`, `terse-drill`, …) via number-free `say.aside` and `say.direct` — never altering locked math or board truth.
+
+### Editorial Self-Critique Before Opening a PR
+Run one `read` → `revise` pass using `prompts/editorial-review.md`, then validate with `--strict-craft` (warnings are non-blocking at Bronze, required clean at Silver/Gold):
+
+```bash
+python3 scripts/didactum_validate.py <your-file> --strict-craft --json
+```
+
+---
+
 ## 4. Fast `<1s` Local Validator & `fix: [ops]` Self-Repair Loop
 
 Run the offline validator on any `.json`, `.yaml`/`.yml`, `.score`, or legacy `lessons/*.json` file:

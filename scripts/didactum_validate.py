@@ -536,6 +536,143 @@ def _standalone_validate_artifacts(docs: Sequence[Mapping[str, Any]]) -> List[Di
     return diags
 
 
+# ── Pedagogical Craft Diagnostics (DID-W001..DID-W005; --strict-craft) ──────
+
+_CRAFT_BANNED_TITLES = frozenset({
+    "setting the scene",
+    "the trap",
+    "the wrong way",
+    "the right way",
+    "solving it",
+    "checking it",
+    "checking the answer",
+    "why it matters",
+    "conclusion",
+    "summary",
+    "introduction",
+})
+
+_CRAFT_PLACE_VALUE_BUG_RE = re.compile(
+    r"\b(?:(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s+tens|"
+    r"(?:two|three|four|five|six|seven|eight|nine|ten|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\s+hundred\s+hundreds)\b",
+    re.I,
+)
+
+_CRAFT_DEAD_CLOSER_RE = re.compile(r"\b(?:and\s+)?that(?:'s|\s+is)\s+the\s+whole\s+lesson\b", re.I)
+
+
+def check_pedagogical_craft(
+    doc: Mapping[str, Any],
+    *,
+    strict: bool = False,
+) -> List[Dict[str, Any]]:
+    """Emit actionable craft diagnostics (DID-W001..DID-W005) on `kind: lesson` artifacts.
+
+    Severity is 'warning' by default (non-blocking for Bronze community experiments) and promoted
+    to 'error' when `--strict-craft` is set (Silver/Gold & internal baking bar).
+    """
+    if doc.get("kind") != "lesson":
+        return []
+    payload = doc.get("payload")
+    if not isinstance(payload, Mapping):
+        return []
+    chapters = payload.get("chapters")
+    if not isinstance(chapters, list) or not chapters:
+        return []
+
+    sev = "error" if strict else "warning"
+    art_id = str(doc.get("id") or "<lesson>")
+    meta = payload.get("meta") if isinstance(payload.get("meta"), Mapping) else {}
+    diags: List[Dict[str, Any]] = []
+
+    # 1. Generic textbook chapter titles (DID-W003) & bolted-on appendix closer (DID-W004) & place-value slips (DID-W005)
+    for ci, ch in enumerate(chapters):
+        if not isinstance(ch, Mapping):
+            continue
+        title = str(ch.get("title") or "").strip()
+        norm_title = re.sub(r"[^a-z0-9\s]", "", title.lower()).strip()
+        ch_id = str(ch.get("id") or f"ch{ci + 1}")
+        if norm_title in _CRAFT_BANNED_TITLES:
+            diags.append(_diag(
+                "DID-W003", sev, art_id, f"#{ch_id}", f"/payload/chapters/{ci}/title",
+                f"Generic textbook chapter title {title!r} — use a vivid, lesson-specific chapter title.",
+            ))
+        beats = ch.get("beats") if isinstance(ch.get("beats"), list) else []
+        for bi, bt in enumerate(beats):
+            if not isinstance(bt, Mapping):
+                continue
+            lines = bt.get("lines") if isinstance(bt.get("lines"), list) else []
+            for li, ln in enumerate(lines):
+                if not isinstance(ln, Mapping):
+                    continue
+                txt = str(ln.get("text") or "")
+                ln_id = str(ln.get("id") or f"{bt.get('id', 'b')}.l{li + 1}")
+                if ci < len(chapters) - 1 and _CRAFT_DEAD_CLOSER_RE.search(txt):
+                    diags.append(_diag(
+                        "DID-W004", sev, art_id, f"#{ln_id}", f"/payload/chapters/{ci}/beats/{bi}/lines/{li}/text",
+                        "Line says 'that's the whole lesson' before the final chapter (bolted-on appendix).",
+                    ))
+                m_pv = _CRAFT_PLACE_VALUE_BUG_RE.search(txt)
+                if m_pv:
+                    diags.append(_diag(
+                        "DID-W005", sev, art_id, f"#{ln_id}", f"/payload/chapters/{ci}/beats/{bi}/lines/{li}/text",
+                        f"Spoken place-value error {m_pv.group(0)!r} — fix unit wording (e.g. 'three tens, which is thirty').",
+                    ))
+
+    # 2. Slide 1 pinned problem setup & no-spoiler guard (DID-W001)
+    ch1 = chapters[0] if isinstance(chapters[0], Mapping) else {}
+    ch1_pin_texts: List[str] = []
+    for bt in (ch1.get("beats") or []):
+        if not isinstance(bt, Mapping):
+            continue
+        for nd in (bt.get("nodes") or []):
+            if isinstance(nd, Mapping) and nd.get("pin"):
+                props = nd.get("props") if isinstance(nd.get("props"), Mapping) else {}
+                for k in ("text", "tex", "inside", "back", "title", "label"):
+                    v = props.get(k)
+                    if isinstance(v, str) and v.strip():
+                        ch1_pin_texts.append(v.strip())
+    ch1_pin_blob = " ".join(ch1_pin_texts)
+    if ch1_pin_texts and not re.search(r"(\?|\b(?:Find|Max|Min|Solve|Area|Value|Left|Total)\b|=)", ch1_pin_blob, re.I):
+        diags.append(_diag(
+            "DID-W001", sev, art_id, f"#{ch1.get('id', 'ch1')}", "/payload/chapters/0",
+            "Chapter 1 pinned setup should clearly display the problem expression/question (e.g. '?' or 'Find ...').",
+        ))
+    ans_obj = meta.get("answer")
+    ans_val = str(ans_obj.get("value") if isinstance(ans_obj, Mapping) else (ans_obj or ""))
+    prob_val = str(meta.get("problem") or "")
+    ans_nums = set(re.findall(r"-?\d+(?:\.\d+)?", ans_val))
+    given_nums = set(re.findall(r"-?\d+(?:\.\d+)?", prob_val))
+    for n in sorted(n for n in ans_nums if n not in given_nums and len(n) >= 2):
+        if re.search(rf"(?<![0-9.]){re.escape(n)}(?![0-9.])", ch1_pin_blob):
+            diags.append(_diag(
+                "DID-W001", sev, art_id, f"#{ch1.get('id', 'ch1')}", "/payload/chapters/0",
+                f"Chapter 1 pinned setup spoils final answer {n!r} on Slide 1 — pin the '?' setup first.",
+            ))
+
+    # 3. Cumulative board buildup check on multi-chapter lessons (>=3 chapters) (DID-W002)
+    if len(chapters) >= 3:
+        work_node_counts: List[int] = []
+        for ch in chapters[1:]:
+            if not isinstance(ch, Mapping):
+                continue
+            cnt = 0
+            for bt in (ch.get("beats") or []):
+                if not isinstance(bt, Mapping):
+                    continue
+                for nd in (bt.get("nodes") or []):
+                    if isinstance(nd, Mapping) and nd.get("visibility", "learner") != "host-only" and not nd.get("pin"):
+                        cnt += 1
+            work_node_counts.append(cnt)
+        if work_node_counts and max(work_node_counts) < 3:
+            diags.append(_diag(
+                "DID-W002", sev, art_id, "#payload", "/payload/chapters",
+                f"Sparse chalkboard buildup (max {max(work_node_counts)} unpinned working nodes in any derivation chapter; aim for 4-6 cumulative steps on one working pane).",
+            ))
+
+    return diags
+
+
 # ── Identity binding & repo blob/executable guards ───────────────────────────
 
 def check_identity_binding(
@@ -701,6 +838,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--maintainers", default="", help="Comma-separated maintainer logins")
     parser.add_argument("--contributor-map", default="", help="Optional JSON file mapping numeric actor_id -> handle")
     parser.add_argument("--check-blobs", action="store_true", help="Scan files/directories for >100KB blobs and executable code")
+    parser.add_argument("--strict-craft", action="store_true", help="Promote pedagogical craft diagnostics (DID-W001..DID-W005) from warnings to errors")
     args = parser.parse_args(argv)
 
     raw_paths = list(args.paths)
@@ -773,6 +911,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             diags.extend(validate_artifacts(v1_docs))
         else:
             diags.extend(_standalone_validate_artifacts(v1_docs))
+        for doc in v1_docs:
+            diags.extend(check_pedagogical_craft(doc, strict=args.strict_craft))
 
     # Optional identity / namespace binding enforcement
     actor_id = args.actor_id or (os.environ.get("GITHUB_ACTOR_ID", "") if args.enforce_identity else "")
