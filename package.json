@@ -1,11 +1,12 @@
 {
   "name": "didactum-lessons",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Open lessons for Didactum (lesson package v2; read llms.txt)",
+  "description": "Open lessons, overlays, assets, and aliases for Didactum (didactum: 1 + legacy v2; read llms.txt)",
   "license": "CC-BY-4.0",
   "scripts": {
-    "validate": "python3 scripts/validate_lesson.py",
+    "validate": "python3 scripts/didactum_validate.py lessons examples --check-blobs",
+    "validate:legacy": "python3 scripts/validate_lesson.py",
     "preview": "node scripts/preview.mjs"
   }
 }

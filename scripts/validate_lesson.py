@@ -2,7 +2,9 @@
 """Validate lessons: python3 scripts/validate_lesson.py [file.json ...]   (default: every lessons/**/*.json)
 
 Runs the same validator the site runs before a lesson can play (scripts/_package_adapter.py, vendored from the app:
-do not edit it). Each problem is printed as `<file>: <where>: <what to do>`. Exit code 0 means every file passed.
+do not edit it), and delegates didactum: 1 artifacts (.score, .yaml/.yml, or JSON with didactum: 1) to
+scripts/didactum_validate.py. Each problem is printed as `<file>: <where>: <what to do>`. Exit code 0 means every
+file passed.
 """
 import json
 import re
@@ -12,13 +14,30 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import _package_adapter as adapter  # vendored from didactum; do not edit  # noqa: E402
+import didactum_validate  # noqa: E402
 
 PATH_RE = re.compile(r"^lessons/[a-z0-9][a-z0-9-]*/([a-z0-9][a-z0-9-]*)\.json$")
 
 
+def _is_didactum_v1(path: Path) -> bool:
+    if path.suffix.lower() in (".yaml", ".yml", ".score"):
+        return True
+    if path.suffix.lower() == ".json":
+        try:
+            doc = json.loads(path.read_text(encoding="utf-8"))
+            return isinstance(doc, dict) and "didactum" in doc and "schema_version" not in doc
+        except (OSError, ValueError):
+            return False
+    return False
+
+
 def main(argv):
     root = HERE.parent
-    files = [Path(a) for a in argv] or sorted((root / "lessons").rglob("*.json"))
+    raw_args = list(argv)
+    if raw_args and any(_is_didactum_v1(Path(a)) for a in raw_args if Path(a).is_file()):
+        return didactum_validate.main(raw_args)
+
+    files = [Path(a) for a in raw_args] or sorted((root / "lessons").rglob("*.json"))
     if not files:
         print("no lessons found", file=sys.stderr)
         return 1

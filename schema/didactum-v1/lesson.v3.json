@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "didactum.kind/lesson@3",
+  "title": "Didactum Lesson Payload v3",
+  "description": "Offline schema for didactum: 1 kind='lesson' payload (compiled AST chapters, beats, lines, generalized nodes, keyframes, params, and TRUTH_CHECKS).",
+  "type": "object",
+  "required": [
+    "didactum",
+    "id",
+    "kind",
+    "kind_schema",
+    "lang",
+    "payload"
+  ],
+  "properties": {
+    "didactum": {
+      "const": 1
+    },
+    "kind": {
+      "const": "lesson"
+    },
+    "kind_schema": {
+      "type": "string",
+      "pattern": "^didactum\\.kind/lesson@[0-9]+(?:\\.[0-9]+)*$"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "chapters"
+      ],
+      "properties": {
+        "meta": {
+          "type": "object"
+        },
+        "params": {
+          "type": "object"
+        },
+        "truth_checks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          }
+        },
+        "chapters": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/chapter"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "learner",
+        "host-only"
+      ]
+    },
+    "stateDecl": {
+      "type": "object",
+      "required": [
+        "type",
+        "range",
+        "initial"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "number",
+            "enum"
+          ]
+        },
+        "range": {
+          "type": "array",
+          "minItems": 1
+        },
+        "initial": {}
+      }
+    },
+    "node": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "chalk_2d",
+            "mesh_3d",
+            "camera_3d",
+            "clip_plane",
+            "audio",
+            "passage",
+            "sim"
+          ]
+        },
+        "props": {
+          "type": "object"
+        },
+        "pin": {
+          "type": "boolean"
+        },
+        "visibility": {
+          "$ref": "#/$defs/visibility"
+        },
+        "frozen": {
+          "type": "boolean"
+        },
+        "state": {
+          "type": "object"
+        }
+      }
+    },
+    "line": {
+      "type": "object",
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "text": {
+          "type": "string"
+        },
+        "mutability": {
+          "type": "string",
+          "enum": [
+            "free",
+            "numeric-locked",
+            "frozen"
+          ]
+        },
+        "frozen": {
+          "type": "boolean"
+        },
+        "visibility": {
+          "$ref": "#/$defs/visibility"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "score",
+            "host"
+          ]
+        }
+      }
+    },
+    "beat": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "score",
+            "host"
+          ]
+        },
+        "driver": {
+          "type": "string",
+          "pattern": "^(?:voice|learner|asset:[A-Za-z0-9@_./:-]+|timer:[1-9][0-9]*)$"
+        },
+        "visibility": {
+          "$ref": "#/$defs/visibility"
+        },
+        "frozen": {
+          "type": "boolean"
+        },
+        "lines": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/line"
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node"
+          }
+        },
+        "end_state_keyframe": {
+          "type": "object"
+        },
+        "host_hints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "expr": {
+                "type": "string",
+                "minLength": 1
+              },
+              "target": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "chapter": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "beats"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "visibility": {
+          "$ref": "#/$defs/visibility"
+        },
+        "frozen": {
+          "type": "boolean"
+        },
+        "beats": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/beat"
+          }
+        }
+      }
+    }
+  }
+}

@@ -68,10 +68,15 @@ CAPS = {
     "dur": 20000,
 }
 
+# Source a learner must never see or hear read out: a TeX command, a display delimiter, a TeX group, an inline
+# delimiter opening onto TeX or a letter (a price, "$5", is fine), an HTML tag or entity. The same pattern as
+# scripts/board_findings.js's RAW (what the browser audit flags on the rendered board).
+RAW_SOURCE = re.compile(r"\\[A-Za-z]{2,}|\$\$|[\^_]\{|\$\s*[\\A-Za-z{]|</?[a-z][a-z0-9]*[^>]*>|&(?:amp|lt|gt|nbsp|quot|#\d+);")
 _DIGITS = re.compile(r"^\d{1,12}$")
 _BASETEN = re.compile(r"^\d{1,3}$")
 _OPERS = frozenset({"+", "-", "×"})
 _SHAPES = frozenset({"box", "circle", "underline"})
+COLORS = frozenset({"ink", "chalk", "dim", "accent", "cool", "good", "warm", "violet"})
 
 
 def _num(v: Any, lo: float, hi: float) -> bool:
@@ -112,6 +117,9 @@ def _valid_step(s: Any, depth: int, errs: List[str]) -> bool:
         return False
     if s.get("say") is not None and not _str_ok(s["say"], CAPS["str"]):
         errs.append(op + ": say")
+        return False
+    if s.get("color") is not None and (not isinstance(s["color"], str) or s["color"] not in COLORS):
+        errs.append(op + ": color")
         return False
     if op in ("line", "arrow", "brace", "callout_arrow"):
         if not _pt(s.get("from")) or not _pt(s.get("to")):

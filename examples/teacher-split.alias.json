@@ -1,0 +1,20 @@
+{
+  "didactum": 1,
+  "id": "@gh-206459364/teacher-split-alias",
+  "kind": "alias",
+  "kind_schema": "didactum.kind/alias@1",
+  "authors": [
+    "Didactum Contributors"
+  ],
+  "status": "published",
+  "medallion": "platinum",
+  "payload": {
+    "description": "Splits the legacy composite 'teacher:historian-wit' facet into three independent composable Teaching Style facets.",
+    "from": "teacher:historian-wit",
+    "to": {
+      "tone": "deadpan",
+      "texture": "history-rich",
+      "pacing": "measured"
+    }
+  }
+}

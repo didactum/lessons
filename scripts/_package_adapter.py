@@ -392,7 +392,7 @@ def board_errors(doc: dict) -> List[str]:
         ok, why = _bv.validate_deck(board, stem=is_stem(doc))
         for w in why:
             m = re.match(r"step (\d+): (.*)", w)
-            if m and not m.group(2).startswith(("writes", "line", "title")):
+            if m and not m.group(2).startswith(("writes", "line", "title", "geometry:")):
                 errs.append(f"{tag}{where[int(m.group(1)) - 1]}: board.draw op {m.group(2)!r} is malformed or off the "
                             f"board (ops use x 0..100, y 0..70; see the op reference in llms.txt)")
             else:
@@ -562,6 +562,10 @@ def package_to_board(doc: dict, perspective: Optional[str] = None) -> dict:
         for beat in ch["beats"]:
             v = _beat_view(beat, ch, persp)
             fr: Dict[str, Any] = {"title": v["title"], "html": _esc_lines(v["lines"]), "steps": v["ops"]}
+            # the transport names its chapters from this (static/js/lesson/transport.js buildChapters): the lesson's
+            # own chapter titles, not "Part 1" for a lesson whose beats carry no heading of their own
+            if isinstance(ch.get("title"), str) and ch["title"].strip():
+                fr["chapter"] = ch["title"].strip()
             if v["role"]:
                 fr["role"] = v["role"]
             if v["lines"]:

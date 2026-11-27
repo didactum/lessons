@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "didactum.kind/asset@1",
+  "title": "Didactum Asset Artifact v1",
+  "description": "Offline schema for didactum: 1 kind='asset' artifacts. Per-artifact license is allowed here; real-human biometric likeness/weights/voice-clone assets are strictly forbidden.",
+  "type": "object",
+  "required": [
+    "didactum",
+    "id",
+    "kind",
+    "kind_schema",
+    "payload"
+  ],
+  "properties": {
+    "didactum": {
+      "const": 1
+    },
+    "kind": {
+      "const": "asset"
+    },
+    "kind_schema": {
+      "type": "string",
+      "pattern": "^didactum\\.kind/asset@[0-9]+(?:\\.[0-9]+)*$"
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1
+    },
+    "biometric_likeness": {
+      "const": false
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "asset_kind",
+        "media_type"
+      ],
+      "properties": {
+        "asset_kind": {
+          "type": "string",
+          "enum": [
+            "image",
+            "svg",
+            "audio",
+            "gltf",
+            "font",
+            "diagram",
+            "sim-bundle",
+            "avatar-synthetic",
+            "voice-synthetic"
+          ]
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 3
+        },
+        "biometric_likeness": {
+          "const": false
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
+  }
+}
