@@ -23,7 +23,7 @@ Read this file end-to-end before authoring a PR. It contains every rule an AI ag
 
 ### Authorship & Model Provenance (`authors` + `provenance`)
 Every artifact authored with an AI model should record **combined human + model authorship** in `authors` (e.g. `["Ada Lovelace + anthropic/claude-opus-5-5"]` or `["Ada Lovelace + local/Inkling-2-Mini-oQ4e-mtp"]`) plus a structured `provenance` block on the `didactum: 1` envelope:
-```json
+```text
 "provenance": {
   "contributor": { "name": "Ada Lovelace", "handle": "@gh-12345678", "github_actor_id": "12345678" },
   "model": { "family": "anthropic", "id": "claude-opus-5-5", "version": "2026-11" },

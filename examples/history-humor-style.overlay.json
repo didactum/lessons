@@ -4,7 +4,7 @@
   "kind": "overlay",
   "kind_schema": "didactum.kind/overlay@1",
   "lang": "en",
-  "base": "@gh-206459364/river-pen@sha256:8ade776a2e7d4732ac40d72120b10b99d6b239bf1c2324a2233a6b8226037615",
+  "base": "@gh-206459364/river-pen@sha256:1fa377bce2797a5283e0212bb95392d6ce1b9264b426137cfc8d9e5c6b0f3a13",
   "role": "style",
   "provides": [
     "style:history-rich",
