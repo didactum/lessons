@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "didactum.kind/overlay@1",
+  "title": "Didactum Overlay Artifact v1",
+  "description": "Offline schema for didactum: 1 kind='overlay' artifacts constrained to the 7 closed ops.",
+  "type": "object",
+  "required": [
+    "didactum",
+    "id",
+    "kind",
+    "kind_schema",
+    "lang",
+    "payload"
+  ],
+  "properties": {
+    "didactum": {
+      "const": 1
+    },
+    "kind": {
+      "const": "overlay"
+    },
+    "kind_schema": {
+      "type": "string",
+      "pattern": "^didactum\\.kind/overlay@[0-9]+(?:\\.[0-9]+)*$"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "ops"
+      ],
+      "properties": {
+        "role": {
+          "type": "string"
+        },
+        "after": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/overlayOp"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "overlayOp": {
+      "type": "object",
+      "required": [
+        "op",
+        "address"
+      ],
+      "properties": {
+        "op": {
+          "type": "string",
+          "enum": [
+            "say.replace",
+            "say.aside",
+            "say.aside(before)",
+            "say.aside(after)",
+            "say.direct",
+            "node.set",
+            "chapter.replace",
+            "param.set",
+            "meta.set"
+          ]
+        },
+        "address": {
+          "type": "string",
+          "minLength": 1
+        },
+        "position": {
+          "type": "string",
+          "enum": [
+            "before",
+            "after"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "value": {},
+        "chapter": {
+          "type": "object"
+        },
+        "tone": {
+          "type": "string"
+        },
+        "pace": {
+          "type": "string"
+        },
+        "emphasis": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

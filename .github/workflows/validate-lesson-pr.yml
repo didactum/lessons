@@ -1,9 +1,12 @@
 name: validate-lesson-pr
-# Runs on every pull request with read-only permissions and no secrets: the same validator the site runs before a
-# lesson can play, then a rendered preview of the changed lessons attached to the run as an artifact.
+# Runs on every pull request with read-only permissions and no secrets:
+# 1. Enforces DCO Signed-off-by: on every commit in the PR.
+# 2. Rejects binary blobs (>100 KB or .glb/.png/.wav/.mp3/.m4a/...) and executable code outside scripts/.
+# 3. Validates legacy v2 lessons and didactum: 1 artifacts (.json, .yaml, .yml, .score) in <1s.
+# 4. Enforces immutable github.actor_id namespace binding on non-maintainer PRs (didactum/* maintainer-only).
+# 5. Renders a chalkboard preview artifact for changed legacy lessons.
 on:
   pull_request:
-    paths: ["lessons/**", "schema/**", "scripts/**", "llms.txt"]
 permissions:
   contents: read
 jobs:
@@ -14,9 +17,87 @@ jobs:
         with: { fetch-depth: 0 }
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
-      - name: Validate every lesson
+      - name: Install PyYAML for YAML artifact validation
+        run: python3 -m pip install --quiet pyyaml
+      - name: Enforce DCO Signed-off-by trailer on every PR commit
+        run: |
+          python3 - <<'PY'
+          import os, re, subprocess, sys
+          base = os.environ.get("GITHUB_BASE_REF", "main")
+          revs = subprocess.check_output(["git", "rev-list", f"origin/{base}...HEAD"], text=True).split()
+          if not revs:
+              print("No commits in PR range; skipping DCO check.")
+              sys.exit(0)
+          dco_re = re.compile(r"^Signed-off-by:\s+.+\s+<[^<>\s]+@[^<>\s]+>\s*$", re.M)
+          missing = []
+          for sha in revs:
+              msg = subprocess.check_output(["git", "log", "-1", "--format=%B", sha], text=True)
+              if not dco_re.search(msg):
+                  missing.append(sha[:12])
+          if missing:
+              print(f"DCO check failed: missing 'Signed-off-by: Name <email>' on commit(s): {', '.join(missing)}", file=sys.stderr)
+              sys.exit(1)
+          print(f"DCO OK across {len(revs)} commit(s).")
+          PY
+      - name: Reject binary blobs (>100 KB or media binaries) and executable code outside scripts/
+        run: |
+          python3 - <<'PY'
+          import os, subprocess, sys
+          from pathlib import Path
+          sys.path.insert(0, "scripts")
+          import didactum_validate as dv
+          base = os.environ.get("GITHUB_BASE_REF", "main")
+          out = subprocess.check_output(
+              ["git", "diff", "-z", "--name-only", "--diff-filter=AM", f"origin/{base}...HEAD"],
+          )
+          changed = [p.decode("utf-8") for p in out.split(b"\0") if p]
+          errs = []
+          root = Path(".").resolve()
+          for rel in changed:
+              p = root / rel
+              if p.is_file():
+                  errs.extend(dv.check_file_security(p, root))
+          if errs:
+              for e in errs:
+                  print(f"[{e['code']}] {e['artifact']}: {e['message']}", file=sys.stderr)
+              sys.exit(1)
+          print(f"Blob & executable guard OK across {len(changed)} changed file(s).")
+          PY
+      - name: Validate legacy v2 lessons (backwards-compatible)
         run: python3 scripts/validate_lesson.py
-      - name: Changed lessons
+      - name: Validate all didactum:1 and legacy artifacts (<1s)
+        run: python3 scripts/didactum_validate.py lessons examples --check-blobs --json
+      - name: Enforce numeric github.actor_id namespace binding on changed PR artifacts
+        env:
+          PR_ACTOR_ID: ${{ github.actor_id }}
+          PR_ACTOR: ${{ github.actor }}
+          PR_ASSOC: ${{ github.event.pull_request.author_association }}
+        run: |
+          python3 - <<'PY'
+          import os, subprocess, sys
+          from pathlib import Path
+          base = os.environ.get("GITHUB_BASE_REF", "main")
+          out = subprocess.check_output(
+              ["git", "diff", "-z", "--name-only", "--diff-filter=AM", f"origin/{base}...HEAD"],
+          )
+          exts = {".json", ".yaml", ".yml", ".score"}
+          changed = [p.decode("utf-8") for p in out.split(b"\0") if p and Path(p.decode("utf-8")).suffix.lower() in exts]
+          if not changed:
+              print("No changed artifact files to namespace-check.")
+              sys.exit(0)
+          cmd = [
+              sys.executable, "scripts/didactum_validate.py", *changed,
+              "--enforce-identity",
+              "--actor-id", os.environ.get("PR_ACTOR_ID", ""),
+              "--actor", os.environ.get("PR_ACTOR", ""),
+              "--json",
+          ]
+          if os.environ.get("PR_ASSOC") in ("OWNER", "MEMBER"):
+              cmd.extend(["--maintainers", os.environ.get("PR_ACTOR", "")])
+          proc = subprocess.run(cmd, check=False)
+          sys.exit(proc.returncode)
+          PY
+      - name: Changed legacy lessons
         id: changed
         run: |
           git diff -z --name-only --diff-filter=AM "origin/${GITHUB_BASE_REF}...HEAD" -- 'lessons/*.json' > changed.lst

@@ -1,0 +1,31 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) Didactum Contributors
+
+Unless otherwise noted in a `kind: asset` artifact, all lessons, overlays,
+bindings, aliases, concepts, and documentation in this repository are licensed
+under the Creative Commons Attribution 4.0 International License (CC BY 4.0).
+
+You are free to:
+- Share — copy and redistribute the material in any medium or format
+- Adapt — remix, transform, and build upon the material for any purpose,
+  even commercially.
+
+Under the following terms:
+- Attribution — You must give appropriate credit (to the `authors` listed on
+  the artifact and the Didactum project), provide a link to the license, and
+  indicate if changes were made.
+
+Full legal text: https://creativecommons.org/licenses/by/4.0/legalcode
+
+Developer Certificate of Origin (DCO):
+By opening a pull request to this repository, you certify under the Developer
+Certificate of Origin (https://developercertificate.org/) that you wrote or
+have the right to submit the contribution under CC-BY-4.0, and every commit
+must carry a `Signed-off-by: Name <email>` trailer (`git commit -s`).
+
+Note on per-artifact `license` fields:
+Per-artifact `license` fields are FORBIDDEN on lessons, overlays, aliases, and
+concepts (they inherit this repo-level CC-BY-4.0 license). Only `kind: asset`
+artifacts (such as 3D glTF models or synthetic audio metadata) may declare a
+third-party `license`.

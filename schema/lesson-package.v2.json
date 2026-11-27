@@ -528,6 +528,24 @@
           "type": "string",
           "maxLength": 280
         },
+        "pin": {
+          "type": "boolean",
+          "description": "Keep this mark on the board for the rest of the lesson (the problem and its drawing): the player holds pinned marks in a band that never wipes and writes the working under it. A later beat may highlight, strike or erase a pinned mark by id without drawing it again. A lesson with no pinned mark plays as before."
+        },
+        "color": {
+          "type": "string",
+          "enum": [
+            "ink",
+            "chalk",
+            "dim",
+            "accent",
+            "cool",
+            "good",
+            "warm",
+            "violet"
+          ],
+          "description": "Semantic chalk color token: ink (white chalk), dim (side notes/history), accent (warm yellow highlights/answers), cool (sky blue givens/setup), good (mint green confirmations/checks), warm (coral warnings/cross-outs), violet (lavender contrast/secondary concepts)."
+        },
         "text": {
           "type": "string",
           "maxLength": 120

@@ -1,0 +1,49 @@
+{
+  "didactum": 1,
+  "id": "@teetra/conic-sections-3d",
+  "kind": "asset",
+  "kind_schema": "didactum.kind/asset@1",
+  "license": "CC-BY-4.0",
+  "biometric_likeness": false,
+  "teaches": [
+    "concept:conic-sections"
+  ],
+  "authors": [
+    "Didactum 3D Contributors"
+  ],
+  "status": "published",
+  "medallion": "gold",
+  "payload": {
+    "asset_kind": "gltf",
+    "media_type": "model/gltf-binary",
+    "biometric_likeness": false,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 48128,
+    "filename": "conic-sections.glb",
+    "storage": "content-addressed-external",
+    "conventions": {
+      "format": "gltf-2.0",
+      "units": "metres",
+      "up": "+Y",
+      "handedness": "right-handed"
+    },
+    "nodes": [
+      {
+        "id": "double_cone",
+        "kind": "mesh_3d",
+        "props": {
+          "gltf": "asset:@teetra/conic-sections-3d",
+          "position": [0, 0, 0]
+        }
+      },
+      {
+        "id": "slicer_plane",
+        "kind": "clip_plane",
+        "props": {
+          "normal": [0, 1, 0],
+          "constant": 0.4
+        }
+      }
+    ]
+  }
+}

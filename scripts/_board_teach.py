@@ -63,19 +63,146 @@ def html_lines(html: Any) -> List[str]:
     return out
 
 
-def visible(text: Any) -> str:
-    """What a reader SEES of a line: TeX commands become their glyphs, delimiters and braces vanish."""
+_GREEK = {n: chr(c) for n, c in zip(
+    "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi "
+    "psi omega".split(), range(0x3B1, 0x3CA)) if n != "omicron"}
+_GREEK.update({"Delta": "Δ", "Sigma": "Σ", "Omega": "Ω", "Pi": "Π", "Theta": "Θ", "Phi": "Φ", "varepsilon": "ε", "varphi": "φ"})
+_TEX_WORDS = {
+    "times": "×", "cdot": "·", "approx": "≈", "le": "≤", "leq": "≤", "ge": "≥", "geq": "≥", "neq": "≠", "ne": "≠",
+    "div": "÷", "pm": "±", "mp": "∓", "to": "→", "rightarrow": "→", "Rightarrow": "⇒", "implies": "⇒", "infty": "∞",
+    "circ": "°", "degree": "°", "checkmark": "✓", "cdots": "…", "ldots": "…", "dots": "…", "%": "%", "$": "$",
+    "angle": "∠", "triangle": "△", "perp": "⊥", "parallel": "∥", "cong": "≅", "sim": "∼", "propto": "∝", "in": "∈",
+    "sin": "sin", "cos": "cos", "tan": "tan", "log": "log", "ln": "ln", "exp": "exp", "min": "min", "max": "max",
+    "lt": "<", "gt": ">", "{": "{", "}": "}",
+}
+_TEX_TEXT = {"text", "textbf", "textit", "mathrm", "mathbf", "mathit", "operatorname", "mbox", "boxed", "overline", "underline"}
+_TEX_SPACE = {"left", "right", "big", "Big", "bigg", "Bigg", "displaystyle", "textstyle", "quad", "qquad", ",", ";", ":", "!", " "}
+_SIMPLE = re.compile(r"^[A-Za-z0-9.°%]+$|^-?\d+(?:\.\d+)?$")
+
+
+def _group(t: str, i: int) -> Tuple[str, int]:
+    """The argument starting at t[i] (after spaces): a {balanced group} or one character. → (text, next index)."""
+    while i < len(t) and t[i] == " ":
+        i += 1
+    if i >= len(t):
+        return "", i
+    if t[i] != "{":
+        if t[i] == "\\":
+            m = re.match(r"\\[A-Za-z]+", t[i:])
+            if m:
+                return m.group(0), i + len(m.group(0))
+        return t[i], i + 1
+    depth, j = 0, i
+    while j < len(t):
+        if t[j] == "{" and (j == 0 or t[j - 1] != "\\"):
+            depth += 1
+        elif t[j] == "}" and t[j - 1] != "\\":
+            depth -= 1
+            if depth == 0:
+                return t[i + 1:j], j + 1
+        j += 1
+    return t[i + 1:], len(t)
+
+
+def _tex_plain(t: str, stacked: bool = False) -> str:
+    """One run of TeX as a reader would write it in plain text: \\frac{a}{b} → a/b (bracketed when compound),
+    \\text{…} → its words, \\sqrt → √, operators → their glyphs, Greek → its letter. Never leaves a backslash."""
+    out, i = [], 0
+    while i < len(t):
+        c = t[i]
+        if c == "\\":
+            m = re.match(r"\\([A-Za-z]+|.)", t[i:])
+            name = m.group(1) if m else ""
+            i += 1 + len(name)
+            if name in ("frac", "dfrac", "tfrac", "cfrac"):
+                a, i = _group(t, i)
+                b, i = _group(t, i)
+                a, b = _tex_plain(a, stacked).strip(), _tex_plain(b, stacked).strip()
+                if stacked:                                # typeset, a fraction is as wide as its wider row
+                    out.append("x" * max(len(a), len(b)))
+                    continue
+                wrap = lambda x: x if _SIMPLE.match(x) else "(%s)" % x
+                out.append("%s/%s" % (wrap(a), wrap(b)))
+            elif name == "sqrt":
+                a, i = _group(t, i)
+                a = _tex_plain(a, stacked).strip()
+                out.append("√" + (a if _SIMPLE.match(a) or stacked else "(%s)" % a))
+            elif name in _TEX_TEXT:
+                a, i = _group(t, i)
+                out.append(_tex_plain(a, stacked))
+            elif name in _TEX_SPACE:
+                out.append(" ")
+            elif name in _GREEK:
+                out.append(_GREEK[name])
+            elif name in ("begin", "end"):
+                _env, i = _group(t, i)                     # \\begin{aligned} … \\end{aligned}: the rows, not the names
+            elif name == "\\":
+                out.append("; ")
+            elif name in _TEX_WORDS:
+                w = _TEX_WORDS[name]
+                nxt = t[i:i + 1]
+                out.append((w + " ") if w.isalpha() and (nxt.isalnum() or nxt == "\\") else w)
+            else:
+                out.append(name if name.isalpha() and len(name) > 1 else "")
+        elif c in "^_":
+            a, i = _group(t, i + 1)
+            a = _tex_plain(a, stacked).strip()
+            out.append(("" if stacked else c) + (a if len(a) <= 1 or _SIMPLE.match(a) or stacked else "(%s)" % a))
+        elif c in "{}&":
+            i += 1
+        elif c == "~":
+            out.append(" ")
+            i += 1
+        else:
+            out.append(c)
+            i += 1
+    return "".join(out)
+
+
+_TEX_RUN = re.compile(r"\$\$([\s\S]*?)\$\$|\\\[([\s\S]*?)\\\]|\\\(([\s\S]*?)\\\)|\$([^$]+?)\$")
+
+
+def plain_maths(text: Any) -> str:
+    """A line with its TeX written as plain maths ("Divide 360 by 6: 360 ÷ 6 = 60."): what a caption shows and the
+    voice reads (speech_text.normalize says "three hundred sixty divided by six equals sixty"). Every `$…$`, `$$…$$`,
+    `\\(…\\)` and `\\[…\\]` run is converted; prose outside them is left as written (a price, "$5", stays)."""
     if not isinstance(text, str):
         return ""
-    t = text.replace("$$", "").replace("$", "")
-    t = re.sub(r"\\d?frac\{([^{}]*)\}\{([^{}]*)\}", r"\1/\2", t)
-    t = re.sub(r"\\sqrt\{([^{}]*)\}", r"√\1", t)
-    for k in sorted(_TEX_CMD, key=len, reverse=True):
-        t = t.replace(k, _TEX_CMD[k])
-    t = re.sub(r"\\(?:left|right|,|;|!|quad|qquad|text|mathrm|mathbf)\b", "", t)
-    t = re.sub(r"\\[A-Za-z]+", "", t)
-    t = t.replace("{", "").replace("}", "")
-    return _WS.sub(" ", t).strip()
+    def run(m: "re.Match") -> str:
+        inline = m.group(4)
+        if inline is not None and (inline[:1].isspace() or inline[-1:].isspace()) and not re.search(r"[=\\^_<>×÷]", inline):
+            return m.group(0)                              # "$5 and $3" is money (render.js's rule: no space inside)
+        return " " + _tex_plain(next(g for g in m.groups() if g is not None)).strip() + " "
+
+    t = _TEX_RUN.sub(run, text)
+    if "\\" in t:                                       # a bare TeX command outside any delimiter
+        t = _tex_plain(t)
+    t = _WS.sub(" ", t).strip()
+    return re.sub(r"(?<![=<>≤≥≈≠])\s+([.,;:!?])", r"\1", t)
+
+
+def rendered_len(text: Any) -> int:
+    """A line's width in characters as the board typesets it: a stacked fraction counts its wider row, a
+    superscript its characters, `\\text{…}` its words — never the TeX source's length."""
+    if not isinstance(text, str):
+        return 0
+    t = _TEX_RUN.sub(lambda m: " " + _tex_plain(next(g for g in m.groups() if g is not None), True).strip() + " ", text)
+    if "\\" in t or "{" in t:                         # an op's bare TeX (a `math` op carries no delimiters)
+        t = _tex_plain(t, True)
+    return len(_WS.sub(" ", t.replace("$", "")).strip())
+
+
+def is_tex_block(line: Any) -> bool:
+    """A line that is nothing but maths (one or more `$…$` / `$$…$$` runs and the punctuation between them)."""
+    return isinstance(line, str) and "$" in line and not re.sub(r"[\s.,;:]", "", _TEX_RUN.sub("", line))
+
+
+def visible(text: Any) -> str:
+    """What a reader SEES of a line: TeX typeset as its glyphs (\\frac{1}{6} → 1/6), delimiters and braces gone.
+    Its length is the line's rendered width in characters, never its source length."""
+    if not isinstance(text, str):
+        return ""
+    return _WS.sub(" ", plain_maths(text).replace("$$", "")).strip()
 
 
 _WORD = re.compile(r"[A-Za-z]{2,}")
@@ -136,7 +263,7 @@ def written_items(frame: dict) -> List[Tuple[str, str]]:
             continue
         if s.get("pane"):          # a Reading & Writing passage is the text itself, not board writing
             continue
-        kind = "label" if len(visible(t)) <= TEXT_BUDGET["label_chars"] else "line"
+        kind = "label" if rendered_len(t) <= TEXT_BUDGET["label_chars"] else "line"
         out.append((kind, t))
     return out
 
@@ -166,11 +293,11 @@ def budget_errors(frame: Any) -> List[str]:
             % (len(lines), B["lines"])
         )
     for t in lines:
-        v = visible(t)
-        if len(v) > B["line_chars"]:
+        v, n = visible(t), rendered_len(t)
+        if n > B["line_chars"]:
             errs.append(
-                "line %r is %d characters (max %d): one short line or equation per row; say the rest"
-                % (v[:40] + ("…" if len(v) > 40 else ""), len(v), B["line_chars"])
+                "line %r is %d characters wide (max %d): one short line or equation per row; say the rest"
+                % (v[:40] + ("…" if len(v) > 40 else ""), n, B["line_chars"])
             )
     words = sum(prose_words(t) for _k, t in items)
     if words > B["words"]:
@@ -181,14 +308,116 @@ def budget_errors(frame: Any) -> List[str]:
     return errs
 
 
+# ── what the layout cannot fix: references and repeats an author got wrong ──────────────────────────────────────
+# The board places every label clear of every stroke and computes each highlight from where its target ends up
+# (board.js), so geometry is the renderer's job. What it cannot fix is a step that is wrong as written: a highlight,
+# strike or erase whose target no earlier op of the step draws (it rings nothing, or rubs out nothing), a label or
+# equation that repeats the step's heading or one of its written lines (the same words twice on one board), and a
+# spoken line carrying TeX or markup source (its caption would show `\\frac`). `geometry_errors` is the authoring
+# gate's message for each (board_validate.validate_deck → the generated-lesson path and the community ingest);
+# `repair_frame` is the serve-time repair for the boards already stored.
+_REF_OPS = ("highlight", "strike", "erase")
+_TEX_LABEL = re.compile(r"\\[A-Za-z]{2,}|[\^_]\{")
+_RAW_SAY = re.compile(r"\\[A-Za-z]{2,}|\$\$|[\^_]\{|\$\s*[\\A-Za-z{]|</?[a-z][a-z0-9]*[^>]*>|&(?:amp|lt|gt|nbsp|quot|#\d+);")
+
+
+def pinned_ids(frames: Any) -> List[frozenset]:
+    """Per step, the ids an EARLIER step pinned (`"pin": true`, LQ-BOARD-ROOM): the player keeps a pinned mark on the
+    board for the rest of the lesson (static/js/lesson/board.js, the room deck), so a later step may highlight, strike
+    or erase it without drawing it again."""
+    out: List[frozenset] = []
+    seen: set = set()
+    for fr in frames if isinstance(frames, list) else []:
+        out.append(frozenset(seen))
+        if isinstance(fr, dict):
+            seen |= {s["id"] for s in _iter_ops(fr.get("steps")) if s.get("pin") is True and isinstance(s.get("id"), str)}
+    return out
+
+
+def _frame_issues(frame: dict, pinned: frozenset = frozenset()) -> List[Tuple[str, dict]]:
+    """(message, op) for each op of a step that is wrong as written (see above). Ops inside a group count. `pinned`:
+    the ids earlier steps pinned (on the board already)."""
+    out: List[Tuple[str, dict]] = []
+    seen_ids: set = set(pinned)
+    heading = _norm(frame.get("title") or "")
+    lines = {_norm(t) for t in html_lines(frame.get("html"))}
+    for s in _iter_ops(frame.get("steps")):
+        op = s.get("op")
+        if op in _REF_OPS and isinstance(s.get("target"), str) and s["target"] not in seen_ids:
+            out.append(("%s targets %r, which no earlier op of this step draws" % (op, s["target"]), s))
+        if op in ("label", "math") and not s.get("pane"):
+            n = _norm(s.get("text") if op == "label" else s.get("tex"))
+            if len(n) >= 3 and (n == heading or n in lines):
+                out.append(("%s %r repeats the step's %s: the same words twice on one board"
+                            % (op, visible(s.get("text") or s.get("tex"))[:40], "heading" if n == heading else "written line"), s))
+        if op == "label" and isinstance(s.get("text"), str) and _TEX_LABEL.search(s["text"]):
+            out.append(("label %r is written in TeX: make it a math op (a label is shown as typed)" % s["text"][:40], s))
+        if isinstance(s.get("say"), str) and _RAW_SAY.search(s["say"]):
+            out.append(("say %r carries TeX or markup source: speak it in words (a caption shows what `say` holds)"
+                        % s["say"][:50], s))
+        if isinstance(s.get("id"), str):
+            seen_ids.add(s["id"])
+    return out
+
+
+def geometry_errors(frame: Any, pinned: frozenset = frozenset()) -> List[str]:
+    """The authoring gate's messages for a step that is wrong as written (see `_frame_issues`)."""
+    if not isinstance(frame, dict) or frame.get("kind") == "sat_rw":
+        return []
+    return ["geometry: " + m for m, _s in _frame_issues(frame, pinned)]
+
+
+def repair_frame(frame: dict, pinned: frozenset = frozenset()) -> dict:
+    """A stored step made right where it can be without changing what it teaches: a dangling highlight, strike or
+    erase is dropped; a label that repeats the heading or a written line is dropped; TeX in a `say` becomes plain
+    maths. An op dropped for these reasons keeps its voice (a pause carrying its `say`). Returns a new dict, or
+    the same one when there is nothing to repair."""
+    issues = _frame_issues(frame, pinned)
+    if not issues:
+        return frame
+    # a repeated heading: the op goes (the heading stays). A repeated written line: the LINE goes (the op is placed in
+    # the drawing, where it means something) — teach_frame drops it as already shown and closes the sentence that
+    # introduced it, so the line is left to that pass here.
+    to_math = {id(s) for m, s in issues if "is written in TeX" in m}
+    drop = {id(s) for m, s in issues if not m.startswith("say ") and "written line" not in m and id(s) not in to_math}
+    fix_say = {id(s) for m, s in issues if m.startswith("say ")}
+
+    def walk(ops: list) -> list:
+        out = []
+        for s in ops:
+            if not isinstance(s, dict):
+                out.append(s)
+                continue
+            if id(s) in drop:
+                if isinstance(s.get("say"), str):
+                    out.append({"op": "pause", "dur": s.get("dur") or _say_ms(s["say"]), "say": plain_maths(s["say"]),
+                                **({"say_clip": s["say_clip"]} if s.get("say_clip") and id(s) not in fix_say else {})})
+                continue
+            s2 = dict(s)
+            if id(s) in to_math:
+                s2["op"], s2["tex"] = "math", s2.pop("text")
+            if id(s) in fix_say:
+                s2["say"] = plain_maths(s["say"])
+                s2.pop("say_clip", None)                      # the clip spoke the old words
+            if s.get("op") == "group" and isinstance(s.get("children"), list):
+                s2["children"] = walk(s["children"])
+            out.append(s2)
+        return out
+
+    fr = dict(frame)
+    fr["steps"] = walk(list(frame.get("steps") or []))
+    return repair_frame(fr, pinned) if _frame_issues(fr, pinned) and fr["steps"] != frame.get("steps") else fr
+
+
 def validate_step_set(frames: Any, *, stem: bool = True) -> Tuple[bool, List[str]]:
     """(ok, errors) for a lesson's board steps at AUTHORING time: every step within the text budget, and
     a STEM step-set draws at least one figure."""
     if not isinstance(frames, list) or not frames:
         return False, ["steps: none"]
     errs: List[str] = []
+    pins = pinned_ids(frames)
     for i, fr in enumerate(frames, 1):
-        for e in budget_errors(fr):
+        for e in budget_errors(fr) + geometry_errors(fr, pins[i - 1]):
             errs.append("step %d: %s" % (i, e))
     if stem and not any(isinstance(fr, dict) and has_drawing(fr) for fr in frames):
         errs.append(
@@ -239,11 +468,14 @@ def _tex(eq: str) -> str:
 
 def _board_line(line: str) -> Optional[str]:
     """The line a teacher would WRITE for this text, or None when it is prose (said, not written)."""
-    if "$" in line and prose_words(line) <= 3 and len(visible(line)) <= TEXT_BUDGET["line_chars"]:
+    if is_tex_block(line):
+        # an equation set as maths is ONE item: written whole when its typeset width fits a row, else spoken
+        return line if rendered_len(line) <= TEXT_BUDGET["line_chars"] else None
+    if "$" in line and prose_words(line) <= 3 and rendered_len(line) <= TEXT_BUDGET["line_chars"]:
         return line                                   # already a line of maths: written as authored
     if "$" in line and not _equations(line):
         # inline maths with no relation: an expression worth writing if the prose around it is short
-        return line if prose_words(line) <= 3 and len(visible(line)) <= TEXT_BUDGET["line_chars"] else None
+        return line if prose_words(line) <= 3 and rendered_len(line) <= TEXT_BUDGET["line_chars"] else None
     eqs = _equations(line)
     if eqs and prose_words(line) >= 6:
         return None                                   # a sentence that happens to contain maths is said
@@ -301,7 +533,7 @@ def _close_lead_in(sentence: str, follows: Optional[str]) -> str:
         return s
     body = s[:-1].rstrip()
     if follows and ":" not in follows and len(visible(follows)) <= _SPLICE_CHARS:
-        return body + " " + follows.rstrip(" .") + "."
+        return body + (": " if is_tex_block(follows) else " ") + follows.rstrip(" .") + "."
     head, sep, tail = body.rpartition(",")
     if sep and prose_words(tail) <= _LEAD_IN_WORDS and not re.search(r"\d", tail):
         body = head.rstrip()
@@ -339,6 +571,15 @@ def spoken_lines(segments: Sequence[Tuple[str, str]]) -> List[str]:
             return
         sents = _sentences(" ".join(run))
         run.clear()
+        # a lead-in ("So:", "Step 2:", "Multiply the numerator by 360:") is said WITH what it introduces, as one line:
+        # alone, its caption would point at nothing
+        joined: List[str] = []
+        for sent in sents:
+            if joined and joined[-1].rstrip().endswith(":") and len(joined[-1]) + 1 + len(sent) <= _SAY_CAP:
+                joined[-1] = joined[-1].rstrip() + " " + sent
+            else:
+                joined.append(sent)
+        sents = joined
         for i, sent in enumerate(sents):
             if i == len(sents) - 1:                 # only the run's last sentence can point past the speech
                 sent = _close_lead_in(sent, follows)
@@ -347,7 +588,8 @@ def spoken_lines(segments: Sequence[Tuple[str, str]]) -> List[str]:
 
     for kind, text in segments:
         if kind == "say":
-            run.append(text)
+            # a line of maths said aloud is a sentence of its own, never run on into the next one
+            run.append(text.rstrip() + "." if is_tex_block(text) and not plain_maths(text).endswith((".", "!", "?", ":")) else text)
         else:
             flush(text if kind == "board" else None)
     flush(None)
@@ -484,14 +726,36 @@ def figure_ops(texts: Sequence[str]) -> List[dict]:
 # ── the serve-time pass ─────────────────────────────────────────────────────────────────────────────────
 
 
-def teach_frame(frame: Any, context: Sequence[str] = ()) -> Any:
+def teach_frame(frame: Any, context: Sequence[str] = (), pinned: frozenset = frozenset()) -> Any:
     """One step through the rule, returning a new dict (the input is not modified). A step already within
     budget that draws (or has nothing drawable) comes back equal to the input. `context` is the lesson's
     earlier step texts — used only to recognise a drawing, never to write a number."""
     if not isinstance(frame, dict) or frame.get("kind") == "sat_rw" or frame.get("graph"):
         return frame
-    fr = copy.deepcopy(frame)
+    repaired = repair_frame(frame, pinned)
+    fr = copy.deepcopy(repaired)
     steps = fr.get("steps") if isinstance(fr.get("steps"), list) else []
+    # One spoken line per sentence: a community package or authored op that packed multiple sentences onto one
+    # `say` clips on the caption bar. Split each into its first sentence on the op plus pause ops for the rest,
+    # strictly within remaining `_STEPS_CAP` headroom so splitting never displaces authored drawing ops.
+    budget = max(0, _STEPS_CAP - len(steps))
+    split_steps: List[dict] = []
+    say_split = False
+    for st in steps:
+        if budget > 0 and isinstance(st, dict) and isinstance(st.get("say"), str):
+            sents = [plain_maths(s) for s in _sentences(st["say"]) if s.strip()]
+            if len(sents) > 1:
+                take = min(len(sents) - 1, budget)
+                say_split = True
+                budget -= take
+                split_steps.append(dict(st, say=sents[0]))
+                for extra in sents[1:take]:
+                    split_steps.append({"op": "pause", "dur": _say_ms(extra), "say": extra, "taught": True})
+                tail = " ".join(sents[take:])
+                split_steps.append({"op": "pause", "dur": _say_ms(tail), "say": tail, "taught": True})
+                continue
+        split_steps.append(st)
+    steps = split_steps
     fr["steps"] = steps
     says = " ".join(s.get("say") for s in _iter_ops(steps) if isinstance(s.get("say"), str))
     said = _norm(says)
@@ -502,8 +766,15 @@ def teach_frame(frame: Any, context: Sequence[str] = ()) -> Any:
     # `board_of`), ('gone', text) is dropped because the board already says or shows it.
     seg: List[List[str]] = []
     board_of: Dict[int, str] = {}
+    op_maths = "".join(_norm(t) for _k, t in written_items({"steps": steps}))
     for ln in lines:
         n = _norm(ln)
+        # the line's maths is already drawn by the step's own ops (its equation split over two `math` ops, say), and
+        # what is left is a word or two of units: writing it again shows the same equation twice
+        mp = "".join(_norm(m.group(0)) for m in _TEX_RUN.finditer(ln))
+        if mp and len(mp) >= 4 and mp in op_maths and prose_words(_TEX_RUN.sub("", ln)) <= 3:
+            seg.append(["gone", ln])
+            continue
         if n and (n in said or n in written_ops):
             seg.append(["gone", ln])                   # the board already says/shows it
             continue
@@ -524,9 +795,10 @@ def teach_frame(frame: Any, context: Sequence[str] = ()) -> Any:
         seg[j][0] = "say"
         del board_of[j]
     keep = [board_of[j] for j in sorted(board_of)]
-    spoken = [s for s in spoken_lines([(k, t) for k, t in seg])
+    # spoken and captioned as words and plain maths, never TeX source ("Divide 360 by 6: 360 ÷ 6 = 60.")
+    spoken = [plain_maths(s) for s in spoken_lines([(k, t) for k, t in seg])
               if _norm(s) and _norm(s) not in said and not _already_said(s, said_tokens)]
-    changed = bool(spoken) or keep != lines
+    changed = bool(spoken) or keep != lines or say_split
     # title: one heading
     title = fr.get("title") or ""
     if isinstance(title, str) and len(visible(title)) > TEXT_BUDGET["title_chars"]:
@@ -540,7 +812,7 @@ def teach_frame(frame: Any, context: Sequence[str] = ()) -> Any:
         if added and not _two_lines(texts) and not _mentions_var(texts, added):
             added = []                                  # context may only explain a step about the same thing
     if not changed and not added:
-        return frame
+        return repaired
     fr["html"] = "".join("<p>%s</p>" % _html.escape(k, quote=False) for k in keep)
     # One spoken line per sentence: each is its own clip, caption and word timings, and its own time on the step's
     # timeline (the deck stretches the step to its voice, so the lines come one after another; at one instant they
@@ -573,8 +845,9 @@ def teach_board(board: Any) -> Any:
     out = dict(board)
     frames = []
     context: List[str] = []
-    for fr in board["frames"]:
-        t = teach_frame(fr, context)
+    pins = pinned_ids(board["frames"])
+    for fr, pinned in zip(board["frames"], pins):
+        t = teach_frame(fr, context, pinned)
         frames.append(t)
         if isinstance(fr, dict):
             context = (html_lines(fr.get("html")) + [x for _k, x in written_items(fr)] + context)[:40]

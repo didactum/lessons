@@ -1,44 +1,178 @@
-# didactum/lessons — contribute a lesson
+# didactum/lessons — Open Ecosystem Guide (`didactum: 1`)
 
-> Open lessons for Didactum (https://didactum.org), a free tutor that teaches on a chalkboard and speaks aloud. One lesson is one JSON file. When a pull request is merged, the lesson plays on the site within minutes, credited to its authors.
+> Open lessons, perspectives, Teaching Styles, translations, 3D logical assets, and facet aliases for Didactum (`didactum: 1`). Every contribution is validated offline in `<1s` and published at its content address immediately on merge.
 
-These are the exact steps. Read them all before writing.
+Read this file end-to-end before authoring a PR. It contains every rule an AI agent or human contributor needs to ship cleanly in one shot.
 
-## 1. Where the file goes
+---
 
-`lessons/<subject>/<slug>.json` — lower-case letters, digits and hyphens only. The file name must equal the package `slug`. One lesson per pull request. Do not edit `schema/`, `scripts/` or other people's lessons.
+## 1. Core Architecture (`didactum: 1`)
 
-Pick a topic the repo does not have yet: list `lessons/` first.
+### Directory-is-the-Registry & `id != path`
+- **Zero central index files.** There is no central registry JSON to edit or cause merge conflicts. Putting a valid `.json`, `.yaml`/`.yml`, or `.score` artifact in a directory registers it.
+- **`id != path`.** Every artifact's canonical identity is its `id` field (`@<namespace>/<slug>` or maintainer-only `didactum/<slug>`), never its file path. Moving or reorganizing files preserves identity and composition links.
+- **Namespace trust binding:**
+  - Community PRs must bind `<namespace>` to the contributor's immutable GitHub numeric account ID (`@gh-<github_actor_id>/<slug>` or `@<github_actor_id>/<slug>`) or a mapped contributor handle.
+  - `didactum/*` is maintainer-only and rejected on community PRs.
 
-## 2. The format
+### Repo-Level License + DCO (`Signed-off-by:`)
+- This repository is licensed under **CC-BY-4.0** at the repo level (`LICENSE`).
+- **Never** add a `license` field to `lesson`, `overlay`, `alias`, `binding`, `concept`, or `course` artifacts (`DID-E003`). Only `kind: asset` may carry an explicit third-party `license`.
+- Every commit in a PR must include a **Developer Certificate of Origin (DCO)** trailer (`git commit -s`):
+  `Signed-off-by: Your Name <you@example.com>`
 
-Schema: `schema/lesson-package.v2.json` (published at https://didactum.org/schemas/lesson-package.v2.json). Set `"schema_version": "2.0"`.
+### 4-Tier Medallion Trust System (`Bronze → Silver → Gold → Platinum`)
+1. **Bronze** — New community PRs that pass the offline validator and safety guards publish **immediately at Bronze** by direct URL / content digest (`sha256:...`). Bronze artifacts play safely in sandboxed views (with untrusted prompt fencing) and stay out of default K–12 seeded rotation.
+2. **Silver** — Passes deterministic composition, peer-conflict, and `TRUTH_CHECKS` verification.
+3. **Gold** — Verified via maintainer review and/or positive randomized learner-outcome lift.
+4. **Platinum** — Flagship curriculum artifacts with full verification and proven learner-outcome lift.
 
-- `id`: unique, e.g. `community.<slug>`. `slug`: same as the file name.
-- `metadata`: `subject` (math, algebra, geometry, sat, physics, chemistry, reading, ...), `topic` (a human title), `concept_slugs` (1-5 kebab-case skills, most specific first), `grade_band` (k-2, 3-5, 6-8, 9-12, college, adult), optional `grade` (0-16), `language` (en), `authors` (your name or your agent's name), `license` (CC-BY-4.0, CC-BY-SA-4.0 or CC0-1.0), `never_verbatim_verified`: true.
-- `problem`: the student's problem — `statement`, `givens`, `unknown`, `assessment.answer`. The lesson never solves this problem; it teaches the method on a different worked example.
-- `chapters`: each `{id, title, role?, beats}`. `role` is optional, but roles that are present must follow this order: `why` (why it matters), `history` (where it came from), `uses` (where it is used), `seek` (what the problem asks), `how` (how to solve), `check`. Titles are for humans ("Sharing one pizza"), never "Chapter 2" or a role name.
-- A beat is one moment on the board:
-  - `narration.text`: what the teacher says. Plain spoken words, at most 280 characters. Never `$ \ ^ = { }`: say "x squared", "equals".
-  - `board.title`: at most 64 characters.
-  - `board.lines`: at most 3 written lines, each at most 44 characters, at most 24 words across the beat. Equations and key terms, not sentences. `$...$` is TeX (KaTeX).
-  - `board.draw`: drawing ops on a 100 x 70 board (x right 0-100, y down 0-70; keep content inside x 6-94, y 6-62). A maths or science lesson must draw something.
-  - optional `checkin`: `prompt`, 2-5 `choices`, optional `branches` (what the teacher says after each choice; key = the choice text).
-  - optional `prose`: reading text shown under the board.
+---
 
-Draw ops (all coordinates are [x, y]; `dur` is milliseconds):
-- `{"op":"line","from":[x,y],"to":[x,y]}`, `{"op":"arrow","from":..,"to":..}`, `{"op":"brace","from":..,"to":..}`
-- `{"op":"polyline"|"polygon"|"curve","pts":[[x,y],...]}`
-- `{"op":"circle","c":[x,y],"r":5}`, `{"op":"arc","c":[x,y],"r":5,"a0":0,"a1":90}`
-- `{"op":"label","at":[x,y],"text":"short","size":4.5,"align":"center"}` (a label is at most 18 characters)
-- `{"op":"math","at":[x,y],"tex":"\\frac{a}{b}"}`
-- `{"op":"numberline","at":[x,y],"len":70,"lo":0,"hi":10,"divisions":10,"marks":[{"v":3,"text":"A"}]}`
-- `{"op":"highlight","target":"<id of an earlier op>"}`, `{"op":"pause","dur":500}`; give an op an `"id"` to target it.
-- An op may carry `"say"`: one sentence spoken as it is drawn. If any op in a beat has `say`, the says together must equal `narration.text`.
+## 2. Hard Invariants (What the Validator Enforces)
 
-## 3. A complete example
+- `didactum: 1` (integer `1`, never `"1.0"`).
+- **No authored `version` field** (`DID-E002`). Revisions are immutable `sha256` content digests.
+- **No per-artifact `license`** except on `kind: asset` (`DID-E003`).
+- **Offline `kind_schema` only** (`DID-E004`), e.g. `didactum.kind/lesson@3`, `didactum.kind/overlay@1`, `didactum.kind/asset@1`, `didactum.kind/alias@1`. Live `http://` or `https://` URLs are forbidden.
+- **Explicit BCP-47 `lang`** required on all text-bearing artifacts (`en`, `es-MX`, `zh-Hans`, ...; no implicit default) (`DID-E005`).
+- **Zero raw `[x, y]` coordinates** in core lessons. Author in `.score` (declarative `CHALK:` / scene macros like `enclosure`, `right-triangle`, `area-grid`, `balance-scale`) or compiled AST `#node` scenes (`chalk_2d`, `mesh_3d`, `camera_3d`, `clip_plane`, `audio`, `passage`, `sim`).
+- **No real-human voice or face biometrics** (`DID-E006`): `biometric_likeness: false` required on `kind: asset`; voice clones, face weights, and speaker embeddings are strictly rejected.
+- **No binary blobs or executable code in git** (`DID-E017`, `DID-E018`): files `> 100 KB` and binary extensions (`.glb`, `.png`, `.wav`, `.mp3`, `.m4a`, etc.) are rejected; commit metadata-only `kind: asset` artifacts instead.
+- **Zero vendor coupling**: never reference specific third-party avatar/video vendors.
 
-This file is valid. Copy its shape, not its topic.
+---
+
+## 3. All Open Composable Facets
+
+Bundled offline schemas live in `schema/didactum-v1/`:
+- `schema/didactum-v1/envelope.v1.json`
+- `schema/didactum-v1/lesson.v3.json`
+- `schema/didactum-v1/overlay.v1.json`
+- `schema/didactum-v1/asset.v1.json`
+
+### A. Core Lessons (`kind: lesson`, `.score` or compiled AST)
+See `examples/river-pen-core.json` for a complete valid artifact.
+- Declares `teaches: ["concept:<slug>"]`, `prereqs: ["concept:<slug>"]`, `params`, parsed `truth_checks` (`forall`/`exists` bounded non-Turing expressions), and `chapters` -> `beats` -> `lines` + `#node` scenes.
+- Each beat sets `driver`: `"voice"`, `"learner"`, `"asset:<id>"`, or `"timer:<ms>"`.
+- Answers, transfer keys, and rubrics use `visibility: "host-only"` and `frozen: true` (stripped by default-deny from learner views).
+- Line mutability classes: `free`, `numeric-locked`, `frozen`.
+
+Example `.score` format (zero raw coordinates):
+
+```score
+ID: @gh-12345678/river-pen-intro
+LANG: en
+TEACHES: concept:quadratic-optimization
+PREREQS: concept:area-of-rectangle
+PARAM: fence=120
+PARAM: max_area=1800
+TRUTH_CHECK: forall x in 0..60: x * (fence - 2 * x) <= max_area
+HOST: transfer_answer=5000
+TITLE: Maximize a River Pasture
+SLUG: river-pen-intro
+SUBJECT: math
+GRADE: 9-12
+CONCEPT: quadratic-optimization
+PROBLEM: Enclose maximum area with 120 m of fence along a straight river.
+ANSWER: 30 m by 60 m
+
+## Sketch the river border
+SAY: Imagine fencing a pasture where a straight river forms one side.
+CHALK PIN: enclosure boundary=river left="x" back="120 - 2x" right="x" inside="A = x(120 - 2x)" as pen
+```
+
+### B. Perspectives & Locales (`kind: overlay`, `didactum.kind/overlay@1`)
+- **Perspectives** (`astronomy`, `fantasy`, `sports`, `cooking`, ...) reframe contexts/analogies via the **7 closed ops**:
+  `say.replace`, `say.aside(before|after)`, `say.direct`, `node.set`, `chapter.replace`, `param.set`, `meta.set`.
+- **Locales** require explicit BCP-47 `lang` (`es-MX`, `fr`, `ja`, ...). When targeting `numeric-locked` lines with `say.replace`, the canonical numeral multiset must match the core line (`DID-E011`).
+
+### C. Open Composable Teaching Styles (`kind: overlay`, `role: style`)
+See `examples/history-humor-style.overlay.json` for a complete valid artifact.
+- Composable dimensions: `tone` (`warm`, `deadpan`, `grumpy`, `brisk`, `calm`, ...), `textures` (`dry-humor`, `history-rich`, `socratic-probe`, `analogy-heavy`, ...), and `pacing` (`measured`, `brisk`, `rapid-drill`, ...).
+- **Math truth is locked; rhetorical texture is open.** Style overlays CANNOT rewrite `numeric-locked` or `frozen` math lines (`DID-E011`, `DID-E010`). Instead, they enrich teaching with:
+  - **Number-free `say.aside(before|after)`**: historical origin, dry humor, or Socratic nudges containing zero digits or number words (`DID-E012`).
+  - **`say.direct`**: voice/delivery direction (`tone`, `pace`, `emphasis`).
+- Pin `base` to `<core-id>@sha256:<64-hex>` so composition is digest-verified.
+
+```yaml
+didactum: 1
+id: "@gh-12345678/socratic-astronomy-style"
+kind: overlay
+kind_schema: didactum.kind/overlay@1
+lang: en
+base: "@teetra/river-pen@sha256:8ade776a2e7d4732ac40d72120b10b99d6b239bf1c2324a2233a6b8226037615"
+role: style
+targets:
+  tone: warm
+  texture: socratic-probe
+payload:
+  role: style
+  ops:
+    - op: say.aside(before)
+      address: "#b1.hook"
+      text: "Before drawing a single equation, picture which side of the field needs no fence at all."
+    - op: say.direct
+      address: "#b1.eq"
+      tone: warm
+      pace: measured
+```
+
+### D. 3D Logical Assets (`kind: asset`, `didactum.kind/asset@1`)
+See `examples/conic-3d.asset.json`.
+- Metadata only in git (never commit `.glb` binaries).
+- 3D conventions: **glTF 2.0**, **`+Y` up**, **right-handed**, units in **metres**.
+- Requires `biometric_likeness: false`, `payload.asset_kind` (`gltf`, `image`, `svg`, `audio`, `diagram`, `sim-bundle`, `avatar-synthetic`, `voice-synthetic`), `payload.media_type`, `payload.sha256`, `payload.bytes`, and an explicit third-party `license` (`CC-BY-4.0`, `MIT`, etc.).
+
+### E. Facet Aliases / Splits (`kind: alias`, `didactum.kind/alias@1`)
+See `examples/teacher-split.alias.json`.
+- Splits one legacy or composite facet (`from: "teacher:historian-wit"`) into multiple independent facets (`to: {tone: "deadpan", texture: "history-rich", pacing: "measured"}`) with cycle detection (`DID-E015`).
+
+---
+
+## 4. Fast `<1s` Local Validator & `fix: [ops]` Self-Repair Loop
+
+Run the offline validator on any `.json`, `.yaml`/`.yml`, `.score`, or legacy `lessons/*.json` file:
+
+```bash
+python3 scripts/didactum_validate.py examples/ --json
+```
+
+Validate everything (legacy `lessons/` + `didactum: 1` artifacts + blob/executable checks):
+
+```bash
+python3 scripts/didactum_validate.py lessons examples --check-blobs --json
+```
+
+### Locked Machine-Readable Diagnostic Envelope
+Every error or warning returns:
+
+```text
+{
+  "code": "DID-E012",
+  "severity": "error",
+  "artifact": "@gh-12345678/my-style",
+  "address": "#b1.hook",
+  "pointer": "/payload/ops/0",
+  "message": "say.aside must be number-free; found numeric quantity in '...'.",
+  "fix": [
+    { "op": "say.aside", "position": "after", "address": "#b1.hook", "text": "..." }
+  ]
+}
+```
+
+### Agent Self-Repair Loop
+1. Run `python3 scripts/didactum_validate.py <your-file> --json`.
+2. If `"ok": false`, read `diagnostics[]`.
+3. For every diagnostic with a non-empty `fix` array, apply the suggested op (`meta.set`, `say.aside`, `say.replace`, `say.direct`, `node.set`, `param.set`, `chapter.replace`) at `address` / `pointer`.
+4. Re-run `python3 scripts/didactum_validate.py <your-file> --json` until `"ok": true` and 0 errors (`<1s`).
+5. Commit with `git commit -s` (DCO `Signed-off-by:`) and open your PR.
+
+---
+
+## 5. Legacy `lesson-package.v2.json` Compatibility
+
+Existing lessons under `lessons/` use `schema/lesson-package.v2.json` and remain 100% supported. Both `python3 scripts/didactum_validate.py` and `python3 scripts/validate_lesson.py` validate them seamlessly. Reference shape:
 
 ```json
 {
@@ -121,42 +255,3 @@ This file is valid. Copy its shape, not its topic.
   ]
 }
 ```
-
-## 4. Validate
-
-```
-python3 scripts/validate_lesson.py lessons/<subject>/<slug>.json
-```
-
-Python 3.9+ and nothing else. Repeat until it prints `OK`. Every error names the place (`chapters[1].beats[0] (id 'b2')`) and what to change. Without a checkout: POST the JSON to https://didactum.org/mcp/validate_lesson.
-
-## 5. Preview
-
-```
-node scripts/preview.mjs
-```
-
-Open http://localhost:4173, pick your lesson, press "Read aloud". The preview draws each beat's board. Fix anything that sounds like a textbook.
-
-## 6. Pull request checklist
-
-- [ ] One new file, `lessons/<subject>/<slug>.json`, file name = slug; nothing else changed.
-- [ ] `python3 scripts/validate_lesson.py` prints OK.
-- [ ] The answer to `problem` appears nowhere in the lesson, and the worked example is a different problem.
-- [ ] The problem and example are your own. Nothing is copied from a published test, textbook or website.
-- [ ] `authors` and `license` are set. By opening the PR you license the lesson under that license.
-- [ ] Title: `lesson: <topic>`.
-
-## 7. What review rejects, and why
-
-- Anything the validator rejects (CI runs it on every PR).
-- The answer stated, shown or hinted to the point of giving it away: a student must still do their own problem (never verbatim).
-- Questions copied from the SAT, ACT, AP or any published test or book: we cannot license them, and they would leak real test items.
-- Wrong maths or science. A maintainer checks every worked step.
-- Text instead of teaching: boards that are paragraphs, speech that reads a textbook aloud, no drawing.
-- HTML, links, file paths or personal information anywhere (students see and hear every string).
-- Changes to files other than your lesson.
-
-## License
-
-Lessons are CC-BY-4.0 unless the file says CC-BY-SA-4.0 or CC0-1.0. The site credits the `authors` you list.

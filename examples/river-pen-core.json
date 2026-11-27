@@ -1,0 +1,170 @@
+{
+  "didactum": 1,
+  "id": "@teetra/river-pen",
+  "kind": "lesson",
+  "kind_schema": "didactum.kind/lesson@3",
+  "lang": "en",
+  "teaches": [
+    "concept:quadratic-optimization"
+  ],
+  "prereqs": [
+    "concept:area-of-rectangle",
+    "concept:parabola-vertex"
+  ],
+  "authors": [
+    "Didactum Contributors"
+  ],
+  "status": "published",
+  "medallion": "platinum",
+  "payload": {
+    "meta": {
+      "title": "Maximize a River Pasture",
+      "slug": "river-pen",
+      "subject": "math",
+      "grade_band": "9-12",
+      "problem": "A farmer has 120 m of fencing to enclose a rectangular pasture along a straight river (no fence needed along the river). What dimensions maximize the enclosed area?",
+      "unknown": "the width, length, and maximum area",
+      "answer": {
+        "value": "30 m by 60 m (1800 m^2)",
+        "visibility": "host-only",
+        "frozen": true
+      },
+      "transfer_key": {
+        "value": {
+          "prompt": "A gardener has 200 m of edging to bound a rectangular bed against a straight brick wall. What dimensions maximize the area?",
+          "answer": "50 m by 100 m (5000 m^2)",
+          "check_expr": "50 * 100 == 5000"
+        },
+        "visibility": "host-only",
+        "frozen": true
+      }
+    },
+    "params": {
+      "fence": 120,
+      "opt_width": 30,
+      "opt_length": 60,
+      "max_area": 1800
+    },
+    "truth_checks": [
+      "2 * opt_width + opt_length == fence",
+      "opt_width * opt_length == max_area",
+      "forall x in 0..60: x * (fence - 2 * x) <= max_area",
+      "exists x in 0..60: x * (fence - 2 * x) == max_area"
+    ],
+    "chapters": [
+      {
+        "id": "ch1",
+        "title": "Sketch the river border",
+        "beats": [
+          {
+            "id": "b1",
+            "origin": "score",
+            "driver": "voice",
+            "lines": [
+              {
+                "id": "b1.hook",
+                "text": "Imagine fencing a rectangular pasture where one long edge is already formed by a straight river.",
+                "mutability": "free"
+              },
+              {
+                "id": "b1.eq",
+                "text": "You have 120 meters of fence for the three remaining sides, so two widths plus one length equal 120.",
+                "mutability": "numeric-locked"
+              }
+            ],
+            "nodes": [
+              {
+                "id": "river_enclosure",
+                "kind": "chalk_2d",
+                "pin": true,
+                "visibility": "learner",
+                "props": {
+                  "scene": "enclosure",
+                  "boundary": "river",
+                  "left": "x",
+                  "back": "120 - 2x",
+                  "right": "x",
+                  "inside": "A = x(120 - 2x)",
+                  "dividers": 0
+                }
+              },
+              {
+                "id": "width_slider",
+                "kind": "sim",
+                "pin": true,
+                "visibility": "learner",
+                "props": {
+                  "model": "river-pen-area",
+                  "binding_expr": "opt_width * (fence - 2 * opt_width)"
+                },
+                "state": {
+                  "x": {
+                    "type": "number",
+                    "range": [0, 60],
+                    "initial": 15
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ch2",
+        "title": "Find the peak area",
+        "beats": [
+          {
+            "id": "b2",
+            "origin": "score",
+            "driver": "voice",
+            "lines": [
+              {
+                "id": "b2.frozen_rule",
+                "text": "Because the river side needs zero fencing, every bit of material goes into two widths and the opposite side.",
+                "mutability": "frozen",
+                "frozen": true
+              },
+              {
+                "id": "b2.peak",
+                "text": "Balancing the fencing at width 30 meters and length 60 meters produces the maximum area of 1800 square meters.",
+                "mutability": "numeric-locked"
+              }
+            ],
+            "nodes": [
+              {
+                "id": "area_curve",
+                "kind": "chalk_2d",
+                "pin": false,
+                "visibility": "learner",
+                "props": {
+                  "scene": "axes",
+                  "xlabel": "width x (m)",
+                  "ylabel": "area A (m^2)",
+                  "curve": "parabola-down",
+                  "peak_label": "(30, 1800)"
+                }
+              },
+              {
+                "id": "host_transfer_gate",
+                "kind": "passage",
+                "pin": false,
+                "visibility": "host-only",
+                "frozen": true,
+                "props": {
+                  "role": "transfer-check",
+                  "text": "Verify the learner transfers the 1:2 ratio to a 200 m brick-wall enclosure."
+                }
+              }
+            ],
+            "host_hints": [
+              {
+                "expr": "opt_width * (fence - 2 * opt_width) == max_area",
+                "target": "#b2"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
